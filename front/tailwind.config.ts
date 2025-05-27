@@ -12,6 +12,20 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      keyframes: {
+        wiggleLeft: {
+          "0% 100%": { transform: "translateX(0)" },
+          "50%": { transform: "translateX(-6px)" },
+        },
+        wiggleRight: {
+          "0% 100%": { transform: "translateX(0)" },
+          "50%": { transform: "translateX(6px)" },
+        },
+      },
+      animation: {
+        wiggleLeft: "wiggleLeft 0.5s ease-in-out infinite",
+        wiggleRight: "wiggleRight 0.5s ease-in-out infinite",
+      },
     },
   },
   plugins: [],
