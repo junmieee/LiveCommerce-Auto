@@ -1,12 +1,20 @@
 # Build stage
-FROM gradle:8.5-jdk17 AS builder
-WORKDIR /app
-COPY ./java /app
-RUN gradle build --no-daemon
+FROM gradle:8.5-jdk17
 
-# Run stage
-FROM eclipse-temurin:17-jre
 WORKDIR /app
-COPY --from=builder /app/build/libs/*.jar app.jar
+
+# 빌드 설정 파일 복사
+COPY back/java/gradlew ./gradlew
+COPY back/java/gradle ./gradle
+COPY back/java/build.gradle ./build.gradle
+COPY back/java/settings.gradle ./settings.gradle
+RUN chmod +x ./gradlew
+
+# 의존성만 먼저 캐싱 (옵션)
+RUN gradle dependencies || true
+
+# 실행 포트 노출
 EXPOSE 8081
-CMD ["java", "-jar", "app.jar"]
+
+# 기본 실행 명령
+CMD ["./gradlew", "bootRun", "--no-daemon"]
