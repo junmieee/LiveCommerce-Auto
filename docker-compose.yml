@@ -1,10 +1,8 @@
-version: "3.9"
-
 services:
   backend-go:
     build:
-      context: ./back
-      dockerfile: docker-go.Dockerfile
+      context: .
+      dockerfile: back/docker-go.Dockerfile
     ports:
       - "8080:8080"
     volumes:
@@ -14,11 +12,44 @@ services:
 
   backend-java:
     build:
-      context: ./back
-      dockerfile: docker-java.Dockerfile
+      context: .
+      dockerfile: back/docker-java.Dockerfile
     ports:
       - "8081:8081"
     volumes:
-      - ./back/java:/app
+      - ./back/java/src:/app/src
+      - ./back/java/build:/app/build
+      - ~/.gradle:/home/gradle/.gradle
     environment:
       - JAVA_ENV=development
+    command: ./gradlew bootRun --no-daemon
+
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: livecommerce
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  frontend:
+    build:
+      context: .
+      dockerfile: front/docker-front.Dockerfile
+    volumes:
+      - ./front:/app
+      - /app/node_modules    # 호스트의 node_modules 무시
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - backend-go
+      - backend-java
+
+volumes:
+  pgdata:
