@@ -23,9 +23,11 @@ services:
     environment:
       - JAVA_ENV=development
     command: ./gradlew bootRun --no-daemon
+    depends_on:
+      - db
 
   db:
-    image: postgres:15
+    image: postgres:14.0
     restart: always
     environment:
       POSTGRES_DB: livecommerce
