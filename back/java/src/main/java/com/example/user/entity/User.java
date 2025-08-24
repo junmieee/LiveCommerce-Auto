@@ -5,13 +5,15 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+import com.example.user.entity.enums.Provider;
+
+@Entity
+@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
-@Table(name = "users")
 public class User {
 
     @Id
@@ -20,8 +22,13 @@ public class User {
 
     private String email;
     private String name;
-    private Long provider;
-    private Long providerId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Provider provider;
+
+    private String providerId;
+    private String password;
     private String profileImage;
 
     private LocalDateTime createdAt;
