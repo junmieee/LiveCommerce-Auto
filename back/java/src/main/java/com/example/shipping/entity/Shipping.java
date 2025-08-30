@@ -1,9 +1,8 @@
 package com.example.shipping.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDateTime;
+import lombok.*;
 
 @Getter
 @Setter
@@ -14,19 +13,19 @@ import java.time.LocalDateTime;
 @Table(name = "shippings")
 public class Shipping {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private Long orderId;
-    private String recipientName;
-    private String address;
-    private String phoneNumber;
-    private String trackingNumber;
-    private String carrier;
-    private String shippingStatus;
+  private Long orderId;
+  private String recipientName;
+  private String address;
+  private String phoneNumber;
+  private String trackingNumber;
+  private String carrier;
+  private String shippingStatus;
 
-    private LocalDateTime shippedAt;
-    private LocalDateTime deliveredAt;
-    private LocalDateTime orderedAt;
+  private LocalDateTime shippedAt;
+  private LocalDateTime deliveredAt;
+  private LocalDateTime orderedAt;
 }

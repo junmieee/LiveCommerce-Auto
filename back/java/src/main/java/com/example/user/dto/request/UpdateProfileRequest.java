@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateProfileRequest {
-    private String name;
-    private String profileImage;
+  private String name;
+  private String profileImage;
 }

@@ -1,10 +1,9 @@
 package com.example.order.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-
-import java.time.LocalDateTime;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import lombok.*;
 
 @Entity
 @Table(name = "orders")
@@ -15,15 +14,15 @@ import java.math.BigDecimal;
 @Builder
 public class Order {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private Long userId;
-    private BigDecimal totalPrice;
-    private String orderStatus;
+  private Long userId;
+  private BigDecimal totalPrice;
+  private String orderStatus;
 
-    private LocalDateTime orderedAt;
-    private LocalDateTime confirmedAt;
-    private LocalDateTime cancelledAt;
+  private LocalDateTime orderedAt;
+  private LocalDateTime confirmedAt;
+  private LocalDateTime cancelledAt;
 }

@@ -2,35 +2,35 @@ package com.example.shipping.controller;
 
 import com.example.shipping.entity.Shipping;
 import com.example.shipping.service.ShippingService;
-import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/shippings")
 public class ShippingController {
-    private final ShippingService service;
+  private final ShippingService service;
 
-    public ShippingController(ShippingService service) {
-        this.service = service;
-    }
+  public ShippingController(ShippingService service) {
+    this.service = service;
+  }
 
-    @GetMapping
-    public List<Shipping> getAll() {
-        return service.findAll();
-    }
+  @GetMapping
+  public List<Shipping> getAll() {
+    return service.findAll();
+  }
 
-    @GetMapping("/{id}")
-    public Shipping getById(@PathVariable Long id) {
-        return service.findById(id);
-    }
+  @GetMapping("/{id}")
+  public Shipping getById(@PathVariable Long id) {
+    return service.findById(id);
+  }
 
-    @PostMapping
-    public Shipping create(@RequestBody Shipping item) {
-        return service.save(item);
-    }
+  @PostMapping
+  public Shipping create(@RequestBody Shipping item) {
+    return service.save(item);
+  }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        service.deleteById(id);
-    }
+  @DeleteMapping("/{id}")
+  public void delete(@PathVariable Long id) {
+    service.deleteById(id);
+  }
 }

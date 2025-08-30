@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class EmailCheckResponse {
-    private boolean exists;
+  private boolean exists;
 }

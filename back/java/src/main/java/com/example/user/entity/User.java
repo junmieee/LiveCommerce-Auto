@@ -1,11 +1,9 @@
 package com.example.user.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-
-import java.time.LocalDateTime;
-
 import com.example.user.entity.enums.Provider;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import lombok.*;
 
 @Entity
 @Table(name = "users")
@@ -16,28 +14,28 @@ import com.example.user.entity.enums.Provider;
 @Builder
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String email;
-    private String name;
+  private String email;
+  private String name;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Provider provider;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private Provider provider;
 
-    private String providerId;
-    private String password;
-    private String profileImage;
+  private String providerId;
+  private String password;
+  private String profileImage;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime lastLoginAt;
+  private LocalDateTime createdAt;
+  private LocalDateTime lastLoginAt;
 
-    private Boolean isActive;
-    private Boolean isSeller;
+  private Boolean isActive;
+  private Boolean isSeller;
 
-    private String companyName;
-    private String businessNumber;
-    private String contactEmail;
+  private String companyName;
+  private String businessNumber;
+  private String contactEmail;
 }

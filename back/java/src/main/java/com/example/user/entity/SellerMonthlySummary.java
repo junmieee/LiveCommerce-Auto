@@ -1,10 +1,9 @@
 package com.example.user.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import lombok.*;
 
 @Getter
 @Setter
@@ -15,13 +14,13 @@ import java.time.LocalDateTime;
 @Table(name = "sellermonthlysummarys")
 public class SellerMonthlySummary {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private Long sellerId;
-    private String yearMonth;
-    private BigDecimal totalSales;
-    private BigDecimal totalCommission;
-    private LocalDateTime lastUpdatedAt;
+  private Long sellerId;
+  private String yearMonth;
+  private BigDecimal totalSales;
+  private BigDecimal totalCommission;
+  private LocalDateTime lastUpdatedAt;
 }

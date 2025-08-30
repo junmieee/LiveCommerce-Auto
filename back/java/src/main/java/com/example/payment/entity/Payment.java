@@ -1,10 +1,9 @@
 package com.example.payment.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import lombok.*;
 
 @Entity
 @Table(name = "payments")
@@ -15,14 +14,14 @@ import java.time.LocalDateTime;
 @Builder
 public class Payment {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private Long orderId;
-    private String paymentMethod;
-    private BigDecimal amount;
-    private LocalDateTime paidAt;
-    private String paymentStatus;
-    private Long transactionId;
+  private Long orderId;
+  private String paymentMethod;
+  private BigDecimal amount;
+  private LocalDateTime paidAt;
+  private String paymentStatus;
+  private Long transactionId;
 }
