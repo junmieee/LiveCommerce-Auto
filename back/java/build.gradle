@@ -23,6 +23,7 @@ dependencies {
 	implementation 'org.postgresql:postgresql:42.7.3'
 	implementation 'org.liquibase:liquibase-core:4.27.0'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.security:spring-security-crypto'
 
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

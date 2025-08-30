@@ -1,0 +1,55 @@
+#!/bin/sh
+# Git pre-commit hook
+# Runs Docker-based static checks for front (ESLint + TypeScript),
+# Java (Gradle compile), and Go (vet + build). Commits only proceed if all pass.
+
+set -euo pipefail
+
+echo "[pre-commit] Static analysis via Docker Compose..."
+
+if ! command -v docker >/dev/null 2>&1; then
+  echo "[pre-commit] Docker not found on host. Skipping checks (allowing commit)."
+  exit 0
+fi
+
+# Choose docker compose command (v2 or legacy)
+if docker compose version >/dev/null 2>&1; then
+  DC="docker compose"
+elif command -v docker-compose >/dev/null 2>&1; then
+  DC="docker-compose"
+else
+  echo "[pre-commit] Docker Compose not found. Skipping checks (allowing commit)."
+  exit 0
+fi
+
+# Frontend checks
+if [ -f "front/package.json" ]; then
+  echo "[pre-commit] -> Frontend: ESLint + TypeScript type-check"
+  ${DC} run --rm -T frontend sh -lc 'npm run -s lint && npx tsc -p tsconfig.json --noEmit --pretty false'
+fi
+
+# Java checks (compile only; isolate Gradle user home to avoid cache lock)
+if [ -f "back/java/gradlew" ]; then
+  echo "[pre-commit] -> Java: Gradle compile"
+  CMD='export GRADLE_USER_HOME=/tmp/gradle-home; \
+       export GRADLE_PROJECT_CACHE=/tmp/gradle-project-cache; \
+       mkdir -p "$GRADLE_USER_HOME" "$GRADLE_PROJECT_CACHE"; \
+       ./gradlew -q --no-daemon --project-cache-dir="$GRADLE_PROJECT_CACHE" compileJava'
+
+  # If backend-java container is running, prefer exec; otherwise run a one-off
+  CID=$(${DC} ps -q backend-java 2>/dev/null || true)
+  if [ -n "$CID" ]; then
+    ${DC} exec -T backend-java sh -lc "$CMD"
+  else
+    ${DC} run --rm -T backend-java sh -lc "$CMD"
+  fi
+fi
+
+# Go checks
+if [ -f "back/go/go.mod" ]; then
+  echo "[pre-commit] -> Go: vet + build"
+  ${DC} run --rm -T backend-go sh -lc 'go vet ./... && go build ./...'
+fi
+
+echo "[pre-commit] All checks passed."
+exit 0
