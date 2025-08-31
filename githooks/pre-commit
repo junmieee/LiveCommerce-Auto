@@ -24,23 +24,25 @@ fi
 
 # Frontend checks
 if [ -f "front/package.json" ]; then
-  # Collect staged frontend files
-  FRONT_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep '^front/' | grep -E '\.(js|jsx|ts|tsx|css|scss|mdx)$' || true)
-  if [ -n "$FRONT_FILES" ]; then
+  # Collect staged frontend files (host paths)
+  FRONT_FILES_HOST=$(git diff --cached --name-only --diff-filter=ACMR | grep '^front/' | grep -E '\.(js|jsx|ts|tsx|css|scss|mdx)$' || true)
+  if [ -n "$FRONT_FILES_HOST" ]; then
     echo "[pre-commit] -> Frontend: format + eslint --fix (staged)"
+    # Convert to container paths (strip 'front/') and space-separate
+    FRONT_FILES_CONT=$(echo "$FRONT_FILES_HOST" | sed 's#^front/##' | tr '\n' ' ')
     # Prefer exec into running container to reuse deps; else run a one-off
-    CMD='set -e; \
+    CMD="set -e; \
          if [ ! -x node_modules/.bin/eslint ]; then npm i -D eslint --silent --no-audit --no-fund || true; fi; \
          if [ ! -x node_modules/.bin/prettier ]; then npm i -D prettier eslint-config-prettier --silent --no-audit --no-fund || true; fi; \
-         npx --yes prettier --write $FRONT_FILES; \
-         npx --yes eslint --fix $FRONT_FILES'
+         npx --yes prettier --write ${FRONT_FILES_CONT}; \
+         npx --yes eslint --fix ${FRONT_FILES_CONT}"
     CID=$(${DC} ps -q frontend 2>/dev/null || true)
     if [ -n "$CID" ]; then
       ${DC} exec -T frontend sh -lc "$CMD"
     else
       ${DC} run --rm -T frontend sh -lc "$CMD"
     fi
-    echo "$FRONT_FILES" | xargs git add -v >/dev/null 2>&1 || true
+    echo "$FRONT_FILES_HOST" | xargs git add -v >/dev/null 2>&1 || true
   fi
 fi
 
@@ -63,22 +65,24 @@ fi
 
 # Go checks
 if [ -f "back/go/go.mod" ]; then
-  # Collect staged go files
-  GO_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep '^back/go/' | grep -E '\.(go)$' || true)
-  if [ -n "$GO_FILES" ]; then
+  # Collect staged go files (host paths)
+  GO_FILES_HOST=$(git diff --cached --name-only --diff-filter=ACMR | grep '^back/go/' | grep -E '\.(go)$' || true)
+  if [ -n "$GO_FILES_HOST" ]; then
     echo "[pre-commit] -> Go: gofmt -s -w (staged) + vet(changed pkgs)"
-    # Format files
-    CMD_FMT='gofmt -s -w $GO_FILES'
+    GO_FILES_CONT=$(echo "$GO_FILES_HOST" | sed 's#^back/go/##' | tr '\n' ' ')
     CID=$(${DC} ps -q backend-go 2>/dev/null || true)
+    # Format
+    CMD_FMT="gofmt -s -w ${GO_FILES_CONT}"
     if [ -n "$CID" ]; then
       ${DC} exec -T backend-go sh -lc "$CMD_FMT"
     else
       ${DC} run --rm -T backend-go sh -lc "$CMD_FMT"
     fi
-    echo "$GO_FILES" | xargs git add -v >/dev/null 2>&1 || true
+    echo "$GO_FILES_HOST" | xargs git add -v >/dev/null 2>&1 || true
     # Vet only changed directories
-    GO_DIRS=$(echo "$GO_FILES" | xargs -n1 dirname | sort -u)
-    CMD_VET='for d in $GO_DIRS; do go vet "./${d#back/go/}" || exit 1; done'
+    GO_DIRS_HOST=$(echo "$GO_FILES_HOST" | xargs -n1 dirname | sort -u)
+    GO_DIRS_CONT=$(echo "$GO_DIRS_HOST" | sed 's#^back/go/##' | tr '\n' ' ')
+    CMD_VET="for d in ${GO_DIRS_CONT}; do go vet \"./$d\" || exit 1; done"
     if [ -n "$CID" ]; then
       ${DC} exec -T backend-go sh -lc "$CMD_VET"
     else
