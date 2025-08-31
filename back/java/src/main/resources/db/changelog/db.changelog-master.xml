@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <include file="db/migration/V01__create_users.sql" relativeToChangelogFile="false"/>
+    <include file="db/migration/V02__create_products.sql" relativeToChangelogFile="false"/>
+    <include file="db/migration/V03__create_orders.sql" relativeToChangelogFile="false"/>
+    <include file="db/migration/V04__create_order_items.sql" relativeToChangelogFile="false"/>
+    <include file="db/migration/V05__create_shipping.sql" relativeToChangelogFile="false"/>
+    <include file="db/migration/V06__create_payments.sql" relativeToChangelogFile="false"/>
+    <include file="db/migration/V07__create_seller_monthly_summary.sql" relativeToChangelogFile="false"/>
+</databaseChangeLog> 

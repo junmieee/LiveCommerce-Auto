@@ -1,4 +1,21 @@
 services:
+  dev-setup:
+    image: alpine:3.20
+    working_dir: /workspace
+    command: sh -lc "apk add --no-cache git >/dev/null 2>&1 || true; sh scripts/install-git-hooks.sh || true"
+    volumes:
+      - .:/workspace
+    restart: "no"
+
+  gitleaks:
+    image: zricethezav/gitleaks:latest
+    working_dir: /repo
+    entrypoint: ["/bin/sh","-lc"]
+    command: "gitleaks help"
+    volumes:
+      - .:/repo
+    restart: "no"
+
   backend-go:
     build:
       context: .
@@ -17,15 +34,16 @@ services:
     ports:
       - "8081:8081"
     volumes:
-      - ./back/java/src:/app/src
-      - ./back/java/build:/app/build
+      - ./back/java:/app
       - ~/.gradle:/home/gradle/.gradle
     environment:
       - JAVA_ENV=development
     command: ./gradlew bootRun --no-daemon
+    depends_on:
+      - db
 
   db:
-    image: postgres:15
+    image: postgres:14.0
     restart: always
     environment:
       POSTGRES_DB: livecommerce

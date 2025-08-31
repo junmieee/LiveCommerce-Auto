@@ -1,0 +1,36 @@
+package com.example.user.controller;
+
+import com.example.user.entity.SellerMonthlySummary;
+import com.example.user.service.SellerMonthlySummaryService;
+import java.util.List;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/sellermonthlysummarys")
+public class SellerMonthlySummaryController {
+  private final SellerMonthlySummaryService service;
+
+  public SellerMonthlySummaryController(SellerMonthlySummaryService service) {
+    this.service = service;
+  }
+
+  @GetMapping
+  public List<SellerMonthlySummary> getAll() {
+    return service.findAll();
+  }
+
+  @GetMapping("/{id}")
+  public SellerMonthlySummary getById(@PathVariable Long id) {
+    return service.findById(id);
+  }
+
+  @PostMapping
+  public SellerMonthlySummary create(@RequestBody SellerMonthlySummary item) {
+    return service.save(item);
+  }
+
+  @DeleteMapping("/{id}")
+  public void delete(@PathVariable Long id) {
+    service.deleteById(id);
+  }
+}
