@@ -12,7 +12,6 @@ services:
     image: zricethezav/gitleaks:latest
     working_dir: /repo
     entrypoint: ["/bin/sh","-lc"]
-    command: "gitleaks help"
     volumes:
       - .:/repo
     restart: "no"

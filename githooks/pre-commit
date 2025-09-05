@@ -91,10 +91,12 @@ if [ -f "back/go/go.mod" ]; then
   fi
 fi
 
-# Secrets scan (staged only)
-echo "[pre-commit] -> Secrets: gitleaks protect --staged"
-${DC} run --rm -T gitleaks gitleaks protect --staged --redact --no-banner || {
-  echo "[pre-commit] gitleaks detected potential secrets. Aborting commit." >&2
+# Secrets scan (전체 프로젝트)
+echo "[pre-commit] -> Secrets: gitleaks full scan"
+# NOTE: gitleaks service uses entrypoint ["/bin/sh","-lc"], so pass a single
+# command string right after -c to avoid splitting and accidental help output.
+${DC} run --rm -T gitleaks "gitleaks detect -s . --redact --no-banner --exit-code 1" || {
+  echo "[pre-commit] gitleaks found potential secrets. Aborting commit." >&2
   exit 1
 }
 
