@@ -6,15 +6,16 @@ services:
     volumes:
       - .:/workspace
     restart: "no"
+    profiles: ["tools"]
 
   gitleaks:
     image: zricethezav/gitleaks:latest
     working_dir: /repo
     entrypoint: ["/bin/sh","-lc"]
-    command: "gitleaks help"
     volumes:
       - .:/repo
     restart: "no"
+    profiles: ["tools"]
 
   backend-go:
     build:
@@ -41,6 +42,7 @@ services:
     command: ./gradlew bootRun --no-daemon
     depends_on:
       - db
+      - redis
 
   db:
     image: postgres:14.0
@@ -53,6 +55,12 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
 
   frontend:
     build:

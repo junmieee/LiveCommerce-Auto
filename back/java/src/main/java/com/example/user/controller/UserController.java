@@ -2,28 +2,47 @@ package com.example.user.controller;
 
 import com.example.user.dto.request.*;
 import com.example.user.dto.response.*;
+import com.example.user.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
+  private final UserService userService;
+
+  public UserController(UserService userService) {
+    this.userService = userService;
+  }
+
   @PostMapping("/register")
   public ResponseEntity<SimpleResponse> register(@RequestBody RegisterRequest request) {
-    // TODO: UserService에 회원가입 처리 로직 연결
+    userService.register(request);
     return ResponseEntity.status(201).body(new SimpleResponse(true, "회원가입 완료"));
   }
 
   @PostMapping("/login")
   public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-    // TODO: 인증 처리 및 JWT 발급
-    return ResponseEntity.ok(new LoginResponse(true, "dummy-jwt-token"));
+    return ResponseEntity.ok(userService.login(request));
+  }
+
+  @PostMapping("/refresh")
+  public ResponseEntity<RefreshResponse> refresh(@RequestBody RefreshRequest request) {
+    return ResponseEntity.ok(userService.refresh(request));
+  }
+
+  @PostMapping("/logout")
+  public ResponseEntity<SimpleResponse> logout(Authentication auth, @RequestParam Long userId) {
+    // 인증 후 자신의 userId로 요청한다고 가정
+    userService.logout(userId);
+    return ResponseEntity.ok(new SimpleResponse(true, "로그아웃 완료"));
   }
 
   @GetMapping("/me")
   public ResponseEntity<UserProfileResponse> getMyInfo() {
-    // TODO: 인증된 사용자 정보 반환
+    // 간단 버전: 클레임만 검증되어 있으므로 실제 사용자 조회는 추후 구현
     return ResponseEntity.ok(new UserProfileResponse());
   }
 
