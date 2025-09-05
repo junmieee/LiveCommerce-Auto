@@ -6,6 +6,7 @@ services:
     volumes:
       - .:/workspace
     restart: "no"
+    profiles: ["tools"]
 
   gitleaks:
     image: zricethezav/gitleaks:latest
@@ -15,6 +16,7 @@ services:
     volumes:
       - .:/repo
     restart: "no"
+    profiles: ["tools"]
 
   backend-go:
     build:
