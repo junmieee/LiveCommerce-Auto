@@ -24,12 +24,14 @@ public class UserController {
   }
 
   @PostMapping("/login")
-  public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+  public ResponseEntity<LoginResponse> login(
+      @jakarta.validation.Valid @RequestBody LoginRequest request) {
     return ResponseEntity.ok(userService.login(request));
   }
 
   @PostMapping("/refresh")
-  public ResponseEntity<RefreshResponse> refresh(@RequestBody RefreshRequest request) {
+  public ResponseEntity<RefreshResponse> refresh(
+      @jakarta.validation.Valid @RequestBody RefreshRequest request) {
     return ResponseEntity.ok(userService.refresh(request));
   }
 

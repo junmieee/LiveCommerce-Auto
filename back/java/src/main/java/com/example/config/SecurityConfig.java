@@ -29,6 +29,7 @@ public class SecurityConfig {
             auth ->
                 auth.requestMatchers(
                         "/api/users/login",
+                        "/api/users/refresh",
                         "/api/users/register",
                         "/api/users/check-email",
                         "/actuator/**",
