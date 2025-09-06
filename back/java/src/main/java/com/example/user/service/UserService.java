@@ -25,29 +25,79 @@ public class UserService {
   private final JwtTokenProvider jwtTokenProvider;
   private final RefreshTokenStore refreshTokenStore;
 
+  @org.springframework.transaction.annotation.Transactional
   public void register(RegisterRequest request) {
-    // 이메일 중복 확인
-    if (userRepository.existsByEmail(request.getEmail())) {
+    if (request == null) {
+      throw new IllegalArgumentException("요청이 올바르지 않습니다.");
+    }
+
+    String rawEmail = request.getEmail();
+    String email = rawEmail == null ? null : rawEmail.trim().toLowerCase();
+    String name = request.getName() == null ? null : request.getName().trim();
+    String providerStr = request.getProvider() == null ? null : request.getProvider().trim();
+    String providerId = request.getProviderId() == null ? null : request.getProviderId().trim();
+    Boolean wantSeller = Boolean.TRUE.equals(request.getIsSeller());
+
+    if (email == null || email.isBlank() || !email.matches("^[^@\\\s]+@[^@\\\s]+\\.[^@\\\s]+$")) {
+      throw new IllegalArgumentException("이메일 형식이 올바르지 않습니다.");
+    }
+    if (name == null || name.isBlank()) {
+      throw new IllegalArgumentException("이름은 필수입니다.");
+    }
+    if (providerStr == null || providerStr.isBlank()) {
+      throw new IllegalArgumentException("provider는 필수입니다.");
+    }
+
+    Provider provider = Provider.from(providerStr);
+
+    if (userRepository.existsByEmailIgnoreCase(email)) {
       throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
     }
 
-    // 엔티티 생성 및 매핑
+    if (provider != Provider.LOCAL) {
+      if (providerId == null || providerId.isBlank()) {
+        throw new IllegalArgumentException("소셜 회원가입 시 providerId는 필수입니다.");
+      }
+      if (userRepository.existsByProviderAndProviderId(provider, providerId)) {
+        throw new IllegalArgumentException("이미 연동된 소셜 계정입니다.");
+      }
+      if (request.getPassword() != null && !request.getPassword().isBlank()) {
+        throw new IllegalArgumentException("소셜 회원가입에는 비밀번호를 사용할 수 없습니다.");
+      }
+    } else {
+      if (request.getPassword() == null || request.getPassword().isBlank()) {
+        throw new IllegalArgumentException("로컬 회원가입 시 비밀번호는 필수입니다.");
+      }
+      if (request.getPassword().length() < 8) {
+        throw new IllegalArgumentException("비밀번호는 8자 이상이어야 합니다.");
+      }
+    }
+
+    if (wantSeller) {
+      if (request.getCompanyName() == null || request.getCompanyName().trim().isBlank()) {
+        throw new IllegalArgumentException("판매자 전환 시 회사명은 필수입니다.");
+      }
+      if (request.getBusinessNumber() == null || request.getBusinessNumber().trim().isBlank()) {
+        throw new IllegalArgumentException("판매자 전환 시 사업자번호는 필수입니다.");
+      }
+      if (request.getContactEmail() == null || request.getContactEmail().trim().isBlank()) {
+        throw new IllegalArgumentException("판매자 전환 시 연락 이메일은 필수입니다.");
+      }
+    }
+
     User user = new User();
-    user.setEmail(request.getEmail());
-    user.setName(request.getName());
-    user.setProvider(Provider.valueOf(request.getProvider().toUpperCase()));
-    user.setProviderId(request.getProviderId());
-    user.setIsSeller(Boolean.TRUE.equals(request.getIsSeller()));
+    user.setEmail(email);
+    user.setName(name);
+    user.setProvider(provider);
+    user.setProviderId(providerId);
+    user.setIsSeller(wantSeller);
     user.setCompanyName(request.getCompanyName());
     user.setBusinessNumber(request.getBusinessNumber());
     user.setContactEmail(request.getContactEmail());
     user.setIsActive(true);
     user.setCreatedAt(LocalDateTime.now());
 
-    if ("local".equalsIgnoreCase(request.getProvider())) {
-      if (request.getPassword() == null || request.getPassword().isBlank()) {
-        throw new IllegalArgumentException("로컬 회원가입 시 비밀번호는 필수입니다.");
-      }
+    if (provider == Provider.LOCAL) {
       user.setPassword(passwordEncoder.encode(request.getPassword()));
     }
 
@@ -55,7 +105,7 @@ public class UserService {
   }
 
   public LoginResponse login(LoginRequest request) {
-    Optional<User> opt = userRepository.findByEmail(request.getEmail());
+    Optional<User> opt = userRepository.findByEmailIgnoreCase(request.getEmail());
     User user = opt.orElseThrow(() -> new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다."));
     if (user.getPassword() == null
         || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {

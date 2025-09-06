@@ -12,4 +12,5 @@
     <include file="db/migration/V05__create_shipping.sql" relativeToChangelogFile="false"/>
     <include file="db/migration/V06__create_payments.sql" relativeToChangelogFile="false"/>
     <include file="db/migration/V07__create_seller_monthly_summary.sql" relativeToChangelogFile="false"/>
+    <include file="db/migration/V08__alter_users_add_password_and_uniques.sql" relativeToChangelogFile="false"/>
 </databaseChangeLog> 
