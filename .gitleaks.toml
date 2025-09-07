@@ -1,0 +1,16 @@
+# gitleaks config: allowlist example env files and known dummy patterns
+
+title = "livecommerce gitleaks config"
+
+[allowlist]
+  description = "Allow example env files and dummy secrets"
+  paths = [
+    '''^front/\.env\.local\.example$''',
+    '''^back/java/\.env\.example$''',
+    '''^\.env\.example$''',
+  ]
+  regexes = [
+    # base64("secret-for-dev") -> low entropy dummy used in examples
+    '''c2VjcmV0LWZvci1kZXY='''
+  ]
+
