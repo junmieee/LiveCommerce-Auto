@@ -17,7 +17,9 @@ public class Product {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @Column(name = "seller_id")
   private Long sellerId;
+
   private String name;
   private String description;
   private BigDecimal price;

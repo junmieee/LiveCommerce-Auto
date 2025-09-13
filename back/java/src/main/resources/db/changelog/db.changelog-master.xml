@@ -13,4 +13,8 @@
     <include file="db/migration/V06__create_payments.sql" relativeToChangelogFile="false"/>
     <include file="db/migration/V07__create_seller_monthly_summary.sql" relativeToChangelogFile="false"/>
     <include file="db/migration/V08__alter_users_add_password_and_uniques.sql" relativeToChangelogFile="false"/>
+    <include file="db/migration/V09__create_sellers.sql" relativeToChangelogFile="false"/>
+    <include file="db/migration/V10__repoint_products_to_sellers.sql" relativeToChangelogFile="false"/>
+    <include file="db/migration/V11__repoint_seller_monthly_summary.sql" relativeToChangelogFile="false"/>
+    <include file="db/migration/V12__drop_company_fields_from_users.sql" relativeToChangelogFile="false"/>
 </databaseChangeLog> 

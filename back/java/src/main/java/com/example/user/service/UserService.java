@@ -73,17 +73,8 @@ public class UserService {
       }
     }
 
-    if (wantSeller) {
-      if (request.getCompanyName() == null || request.getCompanyName().trim().isBlank()) {
-        throw new IllegalArgumentException("판매자 전환 시 회사명은 필수입니다.");
-      }
-      if (request.getBusinessNumber() == null || request.getBusinessNumber().trim().isBlank()) {
-        throw new IllegalArgumentException("판매자 전환 시 사업자번호는 필수입니다.");
-      }
-      if (request.getContactEmail() == null || request.getContactEmail().trim().isBlank()) {
-        throw new IllegalArgumentException("판매자 전환 시 연락 이메일은 필수입니다.");
-      }
-    }
+    // 판매자 정보(company/business/contact)는 V09~V12에서 sellers 테이블로 분리됨
+    // 여기서는 isSeller 플래그만 세팅하고, 실제 Seller/SellerMember 생성은 별도 API에서 처리 예정
 
     User user = new User();
     user.setEmail(email);
@@ -91,9 +82,6 @@ public class UserService {
     user.setProvider(provider);
     user.setProviderId(providerId);
     user.setIsSeller(wantSeller);
-    user.setCompanyName(request.getCompanyName());
-    user.setBusinessNumber(request.getBusinessNumber());
-    user.setContactEmail(request.getContactEmail());
     user.setIsActive(true);
     user.setCreatedAt(LocalDateTime.now());
 
