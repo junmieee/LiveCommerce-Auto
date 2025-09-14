@@ -46,6 +46,8 @@ public class SecurityConfig {
                         "/",
                         "/error")
                     .permitAll()
+                    .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/products/**")
+                    .permitAll()
                     .anyRequest()
                     .authenticated())
         .httpBasic(Customizer.withDefaults());
