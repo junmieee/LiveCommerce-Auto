@@ -3,16 +3,21 @@ package com.example.product.service;
 import com.example.product.dto.*;
 import com.example.product.entity.Product;
 import com.example.product.repository.ProductRepository;
+import com.example.seller.repository.SellerMemberRepository;
 import java.time.LocalDateTime;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductService {
   private final ProductRepository repository;
+  private final SellerMemberRepository sellerMemberRepository;
 
-  public ProductService(ProductRepository repository) {
+  public ProductService(
+      ProductRepository repository, SellerMemberRepository sellerMemberRepository) {
     this.repository = repository;
+    this.sellerMemberRepository = sellerMemberRepository;
   }
 
   // Public list/detail (active only)
@@ -49,7 +54,8 @@ public class ProductService {
   }
 
   @Transactional
-  public ProductResponse createForSeller(Long sellerId, ProductCreateRequest req) {
+  public ProductResponse createForSeller(Long sellerId, ProductCreateRequest req, Long userId) {
+    assertMemberOfSeller(sellerId, userId);
     LocalDateTime now = LocalDateTime.now();
     Product p =
         Product.builder()
@@ -82,7 +88,8 @@ public class ProductService {
 
   // Seller list with paging/search/sort
   public ProductListResponse sellerList(
-      Long sellerId, int page, int limit, String search, String sort) {
+      Long sellerId, int page, int limit, String search, String sort, Long userId) {
+    assertMemberOfSeller(sellerId, userId);
     if (page < 1) page = 1;
     if (limit < 1) limit = 10;
     var pageable = org.springframework.data.domain.PageRequest.of(page - 1, limit, parseSort(sort));
@@ -100,9 +107,8 @@ public class ProductService {
   }
 
   @Transactional
-  public void partialUpdate(Long id, SellerProductUpdateRequest req) {
-    Product p =
-        repository.findById(id).orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+  public void partialUpdate(Long id, SellerProductUpdateRequest req, Long userId) {
+    Product p = findOwnedProduct(id, userId);
     if (req.getName() != null) p.setName(req.getName());
     if (req.getDescription() != null) p.setDescription(req.getDescription());
     if (req.getPrice() != null) p.setPrice(req.getPrice());
@@ -113,18 +119,16 @@ public class ProductService {
   }
 
   @Transactional
-  public void toggleActive(Long id, Boolean isActive) {
-    Product p =
-        repository.findById(id).orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+  public void toggleActive(Long id, Boolean isActive, Long userId) {
+    Product p = findOwnedProduct(id, userId);
     p.setIsActive(Boolean.TRUE.equals(isActive));
     p.setUpdatedAt(java.time.LocalDateTime.now());
     repository.save(p);
   }
 
   @Transactional
-  public void logicalDelete(Long id) {
-    Product p =
-        repository.findById(id).orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+  public void logicalDelete(Long id, Long userId) {
+    Product p = findOwnedProduct(id, userId);
     p.setIsActive(false);
     p.setUpdatedAt(java.time.LocalDateTime.now());
     repository.save(p);
@@ -151,5 +155,19 @@ public class ProductService {
       case "price_desc" -> org.springframework.data.domain.Sort.by("price").descending();
       default -> org.springframework.data.domain.Sort.by("createdAt").descending();
     };
+  }
+
+  private void assertMemberOfSeller(Long sellerId, Long userId) {
+    boolean ok = sellerMemberRepository.existsByIdSellerIdAndIdUserId(sellerId, userId);
+    if (!ok) throw new AccessDeniedException("해당 판매자에 대한 권한이 없습니다.");
+  }
+
+  private Product findOwnedProduct(Long productId, Long userId) {
+    Product p =
+        repository
+            .findById(productId)
+            .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+    assertMemberOfSeller(p.getSellerId(), userId);
+    return p;
   }
 }
