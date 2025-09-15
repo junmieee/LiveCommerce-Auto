@@ -42,6 +42,10 @@ public class SecurityConfig {
                         "/api/users/refresh",
                         "/api/users/register",
                         "/api/users/check-email",
+                        // OpenAPI / Swagger UI
+                        "/v3/api-docs/**",
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
                         "/actuator/**",
                         "/",
                         "/error")
