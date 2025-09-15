@@ -1,30 +1,21 @@
-package com.example.product.entity;
+package com.example.product.dto;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
-import java.time.*;
-import lombok.*;
+import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Entity
-@Table(name = "products")
-public class Product {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ProductResponse {
   private Long id;
-
-  @Column(name = "seller_id")
   private Long sellerId;
-
   private String name;
   private String description;
   private BigDecimal price;
   private Integer stockQuantity;
-
   private Boolean isActive;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;

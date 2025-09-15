@@ -34,8 +34,4 @@ public class User {
 
   private Boolean isActive;
   private Boolean isSeller;
-
-  private String companyName;
-  private String businessNumber;
-  private String contactEmail;
 }
