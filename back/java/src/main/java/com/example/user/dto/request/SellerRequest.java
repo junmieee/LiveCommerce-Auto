@@ -7,4 +7,7 @@ public class SellerRequest {
   private String companyName;
   private String businessNumber;
   private String contactEmail;
+  private String contactPhone;
+  private String settlementCycle;
+  private Short payoutDay;
 }

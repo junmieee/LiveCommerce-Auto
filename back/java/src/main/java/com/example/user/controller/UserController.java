@@ -1,5 +1,7 @@
 package com.example.user.controller;
 
+import com.example.security.SecurityUtils;
+import com.example.seller.service.SellerOnboardingService;
 import com.example.user.dto.request.*;
 import com.example.user.dto.response.*;
 import com.example.user.service.UserService;
@@ -16,9 +18,11 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
   private final UserService userService;
+  private final SellerOnboardingService sellerOnboardingService;
 
-  public UserController(UserService userService) {
+  public UserController(UserService userService, SellerOnboardingService sellerOnboardingService) {
     this.userService = userService;
+    this.sellerOnboardingService = sellerOnboardingService;
   }
 
   @PostMapping("/register")
@@ -78,9 +82,11 @@ public class UserController {
   @PatchMapping("/seller")
   @Operation(summary = "판매자 전환 신청")
   @SecurityRequirement(name = "bearerAuth")
-  public ResponseEntity<SimpleResponse> becomeSeller(@RequestBody SellerRequest request) {
-    // TODO: 판매자 전환 처리
-    return ResponseEntity.ok(new SimpleResponse(true, "판매자 등록 완료"));
+  public ResponseEntity<SimpleResponse> becomeSeller(
+      Authentication auth, @RequestBody SellerRequest request) {
+    Long userId = SecurityUtils.requireAuthUser(auth).getId();
+    sellerOnboardingService.registerSeller(userId, request);
+    return ResponseEntity.status(201).body(new SimpleResponse(true, "판매자 등록 완료"));
   }
 
   @GetMapping("/check-email")
