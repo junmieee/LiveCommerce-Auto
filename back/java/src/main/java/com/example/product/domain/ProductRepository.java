@@ -20,4 +20,6 @@ public interface ProductRepository {
       Long sellerId, String name, Pageable pageable);
 
   Product save(Product product);
+
+  void deleteAll();
 }
