@@ -1,6 +1,6 @@
 package com.example.common.exception;
 
-import com.example.user.dto.response.SimpleResponse;
+import com.example.user.presentation.dto.response.SimpleResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
