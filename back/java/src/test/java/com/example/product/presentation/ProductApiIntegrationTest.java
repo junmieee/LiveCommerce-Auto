@@ -8,6 +8,7 @@ import com.example.product.domain.Product;
 import com.example.product.domain.ProductRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +36,11 @@ class ProductApiIntegrationTest {
         Product.builder()
             .sellerId(1L)
             .name("테스트상품")
-            .description("설명")
+            .descriptionHtml("<p>설명</p>")
             .price(new BigDecimal("9900"))
             .stockQuantity(100)
+            .thumbnailImageKey("products/1/thumb.jpg")
+            .mainImageKeys(List.of("products/1/main-1.jpg", "products/1/main-2.jpg"))
             .isActive(true)
             .createdAt(LocalDateTime.now())
             .updatedAt(LocalDateTime.now())

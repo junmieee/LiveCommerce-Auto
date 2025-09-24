@@ -9,6 +9,8 @@ import com.example.product.presentation.dto.ProductUpdateRequest;
 import com.example.product.presentation.dto.SellerProductUpdateRequest;
 import com.example.seller.domain.SellerMembershipChecker;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -68,9 +70,11 @@ public class ProductApplicationService {
         Product.builder()
             .sellerId(sellerId)
             .name(req.getName())
-            .description(req.getDescription())
+            .descriptionHtml(req.getDescriptionHtml())
             .price(req.getPrice())
             .stockQuantity(req.getStockQuantity())
+            .thumbnailImageKey(req.getThumbnailImageKey())
+            .mainImageKeys(normalizeMainImageKeys(req.getMainImageKeys()))
             .isActive(req.getIsActive() == null ? Boolean.TRUE : req.getIsActive())
             .createdAt(now)
             .updatedAt(now)
@@ -86,9 +90,11 @@ public class ProductApplicationService {
             .findById(id)
             .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
     product.setName(req.getName());
-    product.setDescription(req.getDescription());
+    product.setDescriptionHtml(req.getDescriptionHtml());
     product.setPrice(req.getPrice());
     product.setStockQuantity(req.getStockQuantity());
+    product.setThumbnailImageKey(req.getThumbnailImageKey());
+    product.setMainImageKeys(normalizeMainImageKeys(req.getMainImageKeys()));
     product.setIsActive(req.getIsActive());
     product.setUpdatedAt(LocalDateTime.now());
     productRepository.save(product);
@@ -118,9 +124,13 @@ public class ProductApplicationService {
   public void partialUpdate(Long id, SellerProductUpdateRequest req, Long userId) {
     Product product = findOwnedProduct(id, userId);
     if (req.getName() != null) product.setName(req.getName());
-    if (req.getDescription() != null) product.setDescription(req.getDescription());
+    if (req.getDescriptionHtml() != null) product.setDescriptionHtml(req.getDescriptionHtml());
     if (req.getPrice() != null) product.setPrice(req.getPrice());
     if (req.getStockQuantity() != null) product.setStockQuantity(req.getStockQuantity());
+    if (req.getThumbnailImageKey() != null)
+      product.setThumbnailImageKey(req.getThumbnailImageKey());
+    if (req.getMainImageKeys() != null)
+      product.setMainImageKeys(normalizeMainImageKeys(req.getMainImageKeys()));
     if (req.getIsActive() != null) product.setIsActive(req.getIsActive());
     product.setUpdatedAt(LocalDateTime.now());
     productRepository.save(product);
@@ -147,12 +157,24 @@ public class ProductApplicationService {
         product.getId(),
         product.getSellerId(),
         product.getName(),
-        product.getDescription(),
+        product.getDescriptionHtml(),
         product.getPrice(),
         product.getStockQuantity(),
+        product.getThumbnailImageKey(),
+        product.getMainImageKeys() == null ? List.of() : List.copyOf(product.getMainImageKeys()),
         product.getIsActive(),
         product.getCreatedAt(),
         product.getUpdatedAt());
+  }
+
+  private static List<String> normalizeMainImageKeys(List<String> keys) {
+    if (keys == null) {
+      return new ArrayList<>();
+    }
+    return keys.stream()
+        .filter(key -> key != null && !key.isBlank())
+        .map(String::trim)
+        .collect(Collectors.toCollection(ArrayList::new));
   }
 
   private static Sort parseSort(String sort) {
