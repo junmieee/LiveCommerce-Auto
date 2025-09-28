@@ -1,0 +1,111 @@
+#!/bin/sh
+# Git pre-commit hook
+# Runs Docker-based static checks for front (ESLint + TypeScript),
+# Java (Gradle compile), and Go (vet + build). Commits only proceed if all pass.
+
+set -euo pipefail
+
+echo "[pre-commit] Static analysis via Docker Compose..."
+
+if ! command -v docker >/dev/null 2>&1; then
+  echo "[pre-commit] Docker not found on host. Skipping checks (allowing commit)."
+  exit 0
+fi
+
+# Choose docker compose command (v2 or legacy)
+if docker compose version >/dev/null 2>&1; then
+  DC="docker compose"
+elif command -v docker-compose >/dev/null 2>&1; then
+  DC="docker-compose"
+else
+  echo "[pre-commit] Docker Compose not found. Skipping checks (allowing commit)."
+  exit 0
+fi
+
+# Frontend checks
+if [ -f "front/package.json" ]; then
+  # Collect staged frontend files (host paths)
+  FRONT_FILES_HOST=$(git diff --cached --name-only --diff-filter=ACMR | grep '^front/' | grep -E '\.(js|jsx|ts|tsx|css|scss|mdx)$' || true)
+  if [ -n "$FRONT_FILES_HOST" ]; then
+    echo "[pre-commit] -> Frontend: format + eslint --fix (staged)"
+    # Convert to container paths (strip 'front/') and keep newline separation
+    FRONT_FILES_CONT=$(printf '%s\n' "$FRONT_FILES_HOST" | sed 's#^front/##')
+    FRONT_FILES_ENCODED=$(printf '%s\n' "$FRONT_FILES_CONT" | base64 | tr -d '\n')
+    # Prefer exec into running container to reuse deps; else run a one-off
+    CMD="set -e; \\
+         if [ ! -x node_modules/.bin/eslint ]; then npm i -D eslint --silent --no-audit --no-fund || true; fi; \\
+         if [ ! -x node_modules/.bin/prettier ]; then npm i -D prettier eslint-config-prettier --silent --no-audit --no-fund || true; fi; \\
+         tmp=\$(mktemp); \\
+         printf '%s' '${FRONT_FILES_ENCODED}' | base64 -d > "\$tmp"; \\
+         set --; \\
+         while IFS= read -r line; do \\
+           [ -z "\$line" ] && continue; \\
+           set -- "\$@" "\$line"; \\
+         done < "\$tmp"; \\
+         rm -f "\$tmp"; \\
+         npx --yes prettier --write "\$@"; \\
+         npx --yes eslint --fix "\$@""
+    CID=$(${DC} ps -q frontend 2>/dev/null || true)
+    if [ -n "$CID" ]; then
+      ${DC} exec -T frontend sh -lc "$CMD"
+    else
+      ${DC} run --rm -T frontend sh -lc "$CMD"
+    fi
+    echo "$FRONT_FILES_HOST" | xargs git add -v >/dev/null 2>&1 || true
+  fi
+fi
+
+# Java checks (compile only; isolate Gradle user home to avoid cache lock)
+if [ -f "back/java/gradlew" ]; then
+  echo "[pre-commit] -> Java: Spotless format (project)"
+  CMD='export GRADLE_USER_HOME=/tmp/gradle-home; \
+       export GRADLE_PROJECT_CACHE=/tmp/gradle-project-cache; \
+       mkdir -p "$GRADLE_USER_HOME" "$GRADLE_PROJECT_CACHE"; \
+       ./gradlew -q --no-daemon --project-cache-dir="$GRADLE_PROJECT_CACHE" spotlessApply'
+  CID=$(${DC} ps -q backend-java 2>/dev/null || true)
+  if [ -n "$CID" ]; then
+    ${DC} exec -T backend-java sh -lc "$CMD"
+  else
+    ${DC} run --rm -T backend-java sh -lc "$CMD"
+  fi
+  # Add any formatted java files
+  git ls-files -m | grep '^back/java/src/.*\.java$' | xargs git add -v >/dev/null 2>&1 || true
+fi
+
+# Go checks
+if [ -f "back/go/go.mod" ]; then
+  # Collect staged go files (host paths)
+  GO_FILES_HOST=$(git diff --cached --name-only --diff-filter=ACMR | grep '^back/go/' | grep -E '\.(go)$' || true)
+  if [ -n "$GO_FILES_HOST" ]; then
+    echo "[pre-commit] -> Go: gofmt -s -w (staged) + vet(changed pkgs)"
+    GO_FILES_CONT=$(echo "$GO_FILES_HOST" | sed 's#^back/go/##' | tr '\n' ' ')
+    CID=$(${DC} ps -q backend-go 2>/dev/null || true)
+    # Format
+    CMD_FMT="gofmt -s -w ${GO_FILES_CONT}"
+    if [ -n "$CID" ]; then
+      ${DC} exec -T backend-go sh -lc "$CMD_FMT"
+    else
+      ${DC} run --rm -T backend-go sh -lc "$CMD_FMT"
+    fi
+    echo "$GO_FILES_HOST" | xargs git add -v >/dev/null 2>&1 || true
+    # Vet only changed directories
+    GO_DIRS_HOST=$(echo "$GO_FILES_HOST" | xargs -n1 dirname | sort -u)
+    GO_DIRS_CONT=$(echo "$GO_DIRS_HOST" | sed 's#^back/go/##' | tr '\n' ' ')
+    CMD_VET="for d in ${GO_DIRS_CONT}; do go vet \"./$d\" || exit 1; done"
+    if [ -n "$CID" ]; then
+      ${DC} exec -T backend-go sh -lc "$CMD_VET"
+    else
+      ${DC} run --rm -T backend-go sh -lc "$CMD_VET"
+    fi
+  fi
+fi
+
+# Secrets scan (staged only)
+echo "[pre-commit] -> Secrets: gitleaks protect --staged"
+${DC} run --rm -T gitleaks gitleaks protect --staged --redact --no-banner || {
+  echo "[pre-commit] gitleaks detected potential secrets. Aborting commit." >&2
+  exit 1
+}
+
+echo "[pre-commit] All checks passed."
+exit 0

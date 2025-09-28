@@ -70,7 +70,7 @@ docker-compose.override.yml
 # =======================================
 # pre-commit
 # =======================================
-githooks/
+# githooks directory now tracked for shared hook scripts
 
 # =======================================
 # 기타
