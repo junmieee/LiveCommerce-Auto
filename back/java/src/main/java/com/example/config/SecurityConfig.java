@@ -50,6 +50,8 @@ public class SecurityConfig {
                         "/",
                         "/error")
                     .permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/sellers/register")
+                    .permitAll()
                     .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/products/**")
                     .permitAll()
                     .anyRequest()

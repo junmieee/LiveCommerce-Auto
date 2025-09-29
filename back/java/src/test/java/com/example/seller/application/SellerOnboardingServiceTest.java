@@ -4,10 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.example.seller.application.command.RegisterSellerCommand;
+import com.example.seller.application.command.RegisterSellerWithUserCommand;
 import com.example.seller.domain.Seller;
 import com.example.seller.domain.SellerMember;
 import com.example.seller.domain.SellerMemberId;
@@ -16,6 +18,7 @@ import com.example.seller.domain.SellerRepository;
 import com.example.user.domain.User;
 import com.example.user.domain.UserRepository;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +26,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 class SellerOnboardingServiceTest {
@@ -30,6 +34,7 @@ class SellerOnboardingServiceTest {
   @Mock private UserRepository userRepository;
   @Mock private SellerRepository sellerRepository;
   @Mock private SellerMembershipRepository sellerMembershipRepository;
+  @Mock private PasswordEncoder passwordEncoder;
 
   @InjectMocks private SellerOnboardingService service;
 
@@ -108,5 +113,79 @@ class SellerOnboardingServiceTest {
     assertThat(ex.getMessage()).contains("이미 등록된 사업자 번호");
 
     verify(sellerMembershipRepository, never()).save(any());
+  }
+
+  @Test
+  void registerSellerWithNewUser_createsUserAndSeller() {
+    RegisterSellerWithUserCommand newUserCommand =
+        RegisterSellerWithUserCommand.builder()
+            .email("OWNER@TEST.COM")
+            .name("홍길동")
+            .password("password123")
+            .companyName("테스트상사")
+            .businessNumber("123-45-67890")
+            .contactPhone("010-1234-5678")
+            .settlementCycle("monthly")
+            .payoutDay((short) 5)
+            .build();
+
+    when(userRepository.existsByEmailIgnoreCase("owner@test.com")).thenReturn(false);
+    when(passwordEncoder.encode("password123")).thenReturn("encoded");
+
+    AtomicReference<User> savedUserRef = new AtomicReference<>();
+    when(userRepository.save(any(User.class)))
+        .thenAnswer(
+            invocation -> {
+              User toSave = invocation.getArgument(0);
+              if (toSave.getId() == null) {
+                toSave.setId(30L);
+              }
+              savedUserRef.set(toSave);
+              return toSave;
+            });
+
+    when(sellerMembershipRepository.existsByUserId(30L)).thenReturn(false);
+    when(sellerRepository.existsByBusinessNumber("123-45-67890")).thenReturn(false);
+    when(sellerRepository.save(any(Seller.class)))
+        .thenAnswer(
+            invocation -> {
+              Seller seller = invocation.getArgument(0);
+              seller.setId(40L);
+              return seller;
+            });
+
+    service.registerSellerWithNewUser(newUserCommand);
+
+    verify(passwordEncoder).encode("password123");
+    User savedUser = savedUserRef.get();
+    assertThat(savedUser).isNotNull();
+    assertThat(savedUser.getEmail()).isEqualTo("owner@test.com");
+    assertThat(savedUser.getIsSeller()).isTrue();
+
+    verify(sellerRepository).save(any(Seller.class));
+    verify(sellerMembershipRepository).save(any(SellerMember.class));
+    verify(userRepository, times(2)).save(any(User.class));
+  }
+
+  @Test
+  void registerSellerWithNewUser_throwsWhenEmailExists() {
+    RegisterSellerWithUserCommand newUserCommand =
+        RegisterSellerWithUserCommand.builder()
+            .email("owner@test.com")
+            .name("홍길동")
+            .password("password123")
+            .companyName("테스트상사")
+            .businessNumber("123-45-67890")
+            .build();
+
+    when(userRepository.existsByEmailIgnoreCase("owner@test.com")).thenReturn(true);
+
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> service.registerSellerWithNewUser(newUserCommand));
+    assertThat(ex.getMessage()).contains("이미 존재하는 이메일");
+
+    verify(userRepository, never()).save(any());
   }
 }

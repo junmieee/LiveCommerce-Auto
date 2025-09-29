@@ -1,9 +1,5 @@
 package com.example.user.presentation;
 
-import com.example.security.SecurityUtils;
-import com.example.seller.application.SellerOnboardingService;
-import com.example.seller.application.command.RegisterSellerCommand;
-import com.example.seller.presentation.dto.SellerRegistrationRequest;
 import com.example.user.application.UserApplicationService;
 import com.example.user.presentation.dto.request.*;
 import com.example.user.presentation.dto.response.*;
@@ -20,12 +16,9 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
   private final UserApplicationService userService;
-  private final SellerOnboardingService sellerOnboardingService;
 
-  public UserController(
-      UserApplicationService userService, SellerOnboardingService sellerOnboardingService) {
+  public UserController(UserApplicationService userService) {
     this.userService = userService;
-    this.sellerOnboardingService = sellerOnboardingService;
   }
 
   @PostMapping("/register")
@@ -53,7 +46,6 @@ public class UserController {
   @Operation(summary = "로그아웃")
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<SimpleResponse> logout(Authentication auth, @RequestParam Long userId) {
-    // 인증 후 자신의 userId로 요청한다고 가정
     userService.logout(userId);
     return ResponseEntity.ok(new SimpleResponse(true, "로그아웃 완료"));
   }
@@ -62,7 +54,6 @@ public class UserController {
   @Operation(summary = "내 정보 조회")
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<UserProfileResponse> getMyInfo() {
-    // 간단 버전: 클레임만 검증되어 있으므로 실제 사용자 조회는 추후 구현
     return ResponseEntity.ok(new UserProfileResponse());
   }
 
@@ -70,7 +61,6 @@ public class UserController {
   @Operation(summary = "프로필 수정")
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<SimpleResponse> updateProfile(@RequestBody UpdateProfileRequest request) {
-    // TODO: 이름, 프로필 이미지 변경 처리
     return ResponseEntity.ok(new SimpleResponse(true, "수정 완료"));
   }
 
@@ -78,34 +68,12 @@ public class UserController {
   @Operation(summary = "회원 탈퇴")
   @SecurityRequirement(name = "bearerAuth")
   public ResponseEntity<SimpleResponse> withdraw() {
-    // TODO: is_active → false 처리
     return ResponseEntity.ok(new SimpleResponse(true, "탈퇴 완료"));
-  }
-
-  @PatchMapping("/seller")
-  @Operation(summary = "판매자 전환 신청")
-  @SecurityRequirement(name = "bearerAuth")
-  public ResponseEntity<SimpleResponse> becomeSeller(
-      Authentication auth, @RequestBody SellerRegistrationRequest request) {
-    Long userId = SecurityUtils.requireAuthUser(auth).getId();
-    RegisterSellerCommand command =
-        RegisterSellerCommand.builder()
-            .userId(userId)
-            .companyName(request.getCompanyName())
-            .businessNumber(request.getBusinessNumber())
-            .contactEmail(request.getContactEmail())
-            .contactPhone(request.getContactPhone())
-            .settlementCycle(request.getSettlementCycle())
-            .payoutDay(request.getPayoutDay())
-            .build();
-    sellerOnboardingService.registerSeller(command);
-    return ResponseEntity.status(201).body(new SimpleResponse(true, "판매자 등록 완료"));
   }
 
   @GetMapping("/check-email")
   @Operation(summary = "이메일 중복 체크")
   public ResponseEntity<EmailCheckResponse> checkEmail(@RequestParam String email) {
-    // TODO: 중복 이메일 검사
     return ResponseEntity.ok(new EmailCheckResponse(false));
   }
 }
