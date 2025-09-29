@@ -1,0 +1,85 @@
+services:
+  dev-setup:
+    image: alpine:3.20
+    working_dir: /workspace
+    command: sh -lc "apk add --no-cache git >/dev/null 2>&1 || true; sh scripts/install-git-hooks.sh || true"
+    volumes:
+      - .:/workspace
+    restart: "no"
+    profiles: ["tools"]
+
+  gitleaks:
+    image: zricethezav/gitleaks:latest
+    working_dir: /repo
+    entrypoint: ["/bin/sh","-lc"]
+    volumes:
+      - .:/repo
+    restart: "no"
+    profiles: ["tools"]
+
+  backend-go:
+    build:
+      context: .
+      dockerfile: back/docker-go.Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./back/go:/app
+    environment:
+      - GO_ENV=development
+
+  backend-java:
+    build:
+      context: .
+      dockerfile: back/docker-java.Dockerfile
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./back/java:/app
+      - ~/.gradle:/home/gradle/.gradle
+    env_file:
+      - back/java/.env
+    environment:
+      - JAVA_ENV=development
+    command: ./gradlew bootRun --no-daemon
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:14.0
+    restart: always
+    environment:
+      POSTGRES_DB: livecommerce
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+
+  frontend:
+    build:
+      context: .
+      dockerfile: front/docker-front.Dockerfile
+    volumes:
+      - ./front:/app
+      - /app/node_modules    # 호스트의 node_modules 무시
+    ports:
+      - "3000:3000"
+    env_file:
+      - front/.env.local
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - backend-go
+      - backend-java
+
+volumes:
+  pgdata:
