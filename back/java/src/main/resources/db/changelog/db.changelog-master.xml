@@ -17,4 +17,6 @@
     <include file="db/migration/V10__repoint_products_to_sellers.sql" relativeToChangelogFile="false"/>
     <include file="db/migration/V11__repoint_seller_monthly_summary.sql" relativeToChangelogFile="false"/>
     <include file="db/migration/V12__drop_company_fields_from_users.sql" relativeToChangelogFile="false"/>
+    <include file="db/migration/V13__add_identity_to_products_id.sql" relativeToChangelogFile="false"/>
+    <include file="db/migration/V14__alter_products_add_media_columns.sql" relativeToChangelogFile="false"/>
 </databaseChangeLog> 
