@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -28,6 +29,16 @@ public class GlobalExceptionHandler {
   public ResponseEntity<SimpleResponse> handleBadRequest(IllegalArgumentException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(new SimpleResponse(false, ex.getMessage()));
+  }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity<SimpleResponse> handleAccessDenied(AccessDeniedException ex) {
+    String message = ex.getMessage();
+    if (message == null || message.isBlank()) {
+      message = "접근 권한이 없습니다.";
+    }
+    log.warn("Access denied: {}", message);
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new SimpleResponse(false, message));
   }
 
   @ExceptionHandler(Exception.class)
