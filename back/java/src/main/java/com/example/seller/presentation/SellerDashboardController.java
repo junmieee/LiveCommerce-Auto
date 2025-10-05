@@ -5,7 +5,12 @@ import com.example.seller.application.SellerDashboardService;
 import com.example.seller.presentation.dto.SellerManagementResponse;
 import com.example.seller.presentation.dto.SellerOrdersResponse;
 import com.example.seller.presentation.dto.SellerShippingsResponse;
+import com.example.user.presentation.dto.response.SimpleResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +34,20 @@ public class SellerDashboardController {
 
   @GetMapping("/management")
   @Operation(summary = "판매관리 현황")
+  @ApiResponses({
+    @ApiResponse(
+        responseCode = "200",
+        description = "판매관리 현황",
+        content = @Content(schema = @Schema(implementation = SellerManagementResponse.class))),
+    @ApiResponse(
+        responseCode = "401",
+        description = "인증 실패",
+        content = @Content(schema = @Schema(implementation = SimpleResponse.class))),
+    @ApiResponse(
+        responseCode = "403",
+        description = "판매자 멤버십 권한 없음",
+        content = @Content(schema = @Schema(implementation = SimpleResponse.class)))
+  })
   public ResponseEntity<SellerManagementResponse> management(
       Authentication authentication, @PathVariable Long sellerId) {
     Long userId = SecurityUtils.requireAuthUser(authentication).getId();
@@ -37,6 +56,20 @@ public class SellerDashboardController {
 
   @GetMapping("/orders")
   @Operation(summary = "판매자 주문 목록")
+  @ApiResponses({
+    @ApiResponse(
+        responseCode = "200",
+        description = "판매자 주문 목록",
+        content = @Content(schema = @Schema(implementation = SellerOrdersResponse.class))),
+    @ApiResponse(
+        responseCode = "401",
+        description = "인증 실패",
+        content = @Content(schema = @Schema(implementation = SimpleResponse.class))),
+    @ApiResponse(
+        responseCode = "403",
+        description = "판매자 멤버십 권한 없음",
+        content = @Content(schema = @Schema(implementation = SimpleResponse.class)))
+  })
   public ResponseEntity<SellerOrdersResponse> orders(
       Authentication authentication, @PathVariable Long sellerId) {
     Long userId = SecurityUtils.requireAuthUser(authentication).getId();
@@ -45,6 +78,20 @@ public class SellerDashboardController {
 
   @GetMapping("/shippings")
   @Operation(summary = "판매자 배송 목록")
+  @ApiResponses({
+    @ApiResponse(
+        responseCode = "200",
+        description = "판매자 배송 목록",
+        content = @Content(schema = @Schema(implementation = SellerShippingsResponse.class))),
+    @ApiResponse(
+        responseCode = "401",
+        description = "인증 실패",
+        content = @Content(schema = @Schema(implementation = SimpleResponse.class))),
+    @ApiResponse(
+        responseCode = "403",
+        description = "판매자 멤버십 권한 없음",
+        content = @Content(schema = @Schema(implementation = SimpleResponse.class)))
+  })
   public ResponseEntity<SellerShippingsResponse> shippings(
       Authentication authentication, @PathVariable Long sellerId) {
     Long userId = SecurityUtils.requireAuthUser(authentication).getId();

@@ -5,6 +5,10 @@ import com.example.seller.application.command.RegisterSellerWithUserCommand;
 import com.example.seller.presentation.dto.SellerRegistrationRequest;
 import com.example.user.presentation.dto.response.SimpleResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +30,20 @@ public class SellerOnboardingController {
 
   @PostMapping("/register")
   @Operation(summary = "판매자 가입")
+  @ApiResponses({
+    @ApiResponse(
+        responseCode = "201",
+        description = "판매자 계정 생성 완료",
+        content = @Content(schema = @Schema(implementation = SimpleResponse.class))),
+    @ApiResponse(
+        responseCode = "400",
+        description = "검증 오류 또는 중복 데이터",
+        content = @Content(schema = @Schema(implementation = SimpleResponse.class))),
+    @ApiResponse(
+        responseCode = "409",
+        description = "이미 판매자 계정 존재",
+        content = @Content(schema = @Schema(implementation = SimpleResponse.class)))
+  })
   public ResponseEntity<SimpleResponse> registerSeller(
       @Valid @RequestBody SellerRegistrationRequest request) {
 
