@@ -10,7 +10,7 @@ import type {
 } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/apiClient";
-import { getUserId } from "@/lib/auth";
+import { getSellerId } from "@/lib/auth";
 
 type FormState = {
   name: string;
@@ -25,7 +25,7 @@ type FormErrors = Partial<FormState> & { base?: string };
 
 export default function ProductCreateForm() {
   const router = useRouter();
-  const sellerId = useMemo(() => getUserId(), []);
+  const sellerId = useMemo(() => getSellerId(), []);
 
   const [form, setForm] = useState<FormState>({
     name: "",
@@ -90,7 +90,7 @@ export default function ProductCreateForm() {
       if (form.imageUrl.trim()) payload.imageUrl = form.imageUrl.trim();
 
       const res = await apiFetch(
-        `/api/seller/products?sellerId=${encodeURIComponent(sellerId)}`,
+        `http://localhost:8081/api/seller/products?sellerId=${encodeURIComponent(sellerId)}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

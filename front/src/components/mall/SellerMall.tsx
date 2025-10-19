@@ -9,7 +9,7 @@ type Product = {
   id: string;
   name: string;
   price: number;
-  imageUrl: string;
+  imageUrl?: string | null;
   createdAt?: string; // ISO date
   sales?: number; // 누적 판매량
 };
@@ -187,16 +187,22 @@ export default function SellerMall({ data }: { data: SellerData }) {
 
       {/* Product grid */}
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
-          {filtered.map((p) => (
-            <ProductCard
-              key={p.id}
-              {...p}
-              href={`/mall/products/${p.id}${data.seller ? "?seller=" + encodeURIComponent(data.seller) : ""}`}
-              onAddToCart={() => {}}
-            />
-          ))}
-        </div>
+        {filtered.length === 0 ? (
+          <div className="rounded-3xl bg-white py-16 text-center text-gray-500 shadow-sm">
+            등록된 상품이 없습니다.
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+            {filtered.map((p) => (
+              <ProductCard
+                key={p.id}
+                {...p}
+                href={`/mall/products/${p.id}${data.seller ? "?seller=" + encodeURIComponent(data.seller) : ""}`}
+                onAddToCart={() => {}}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

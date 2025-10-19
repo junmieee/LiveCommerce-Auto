@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { setTokens } from "@/lib/auth";
+import { setActiveSellerId, setTokens } from "@/lib/auth";
 
 export default function SellerLoginForm() {
   const router = useRouter();
@@ -21,7 +21,7 @@ export default function SellerLoginForm() {
 
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:8081/api/users/login", {
+      const res = await fetch("http://localhost:8081/api/sellers/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -32,9 +32,23 @@ export default function SellerLoginForm() {
         return;
       }
 
-      const token = data?.token as string | undefined;
+      const accessToken = data?.accessToken as string | undefined;
       const refreshToken = data?.refreshToken as string | undefined;
-      if (token) setTokens(token, refreshToken);
+      const sellers = Array.isArray(data?.sellers) ? data.sellers : [];
+      const defaultSeller =
+        sellers.find((s: { defaultAccount?: boolean }) => s?.defaultAccount) ??
+        sellers[0];
+      const sellerId = defaultSeller?.sellerId;
+
+      if (accessToken) setTokens(accessToken, refreshToken);
+
+      if (sellerId === undefined || sellerId === null) {
+        setActiveSellerId(null);
+        setError("연결된 판매자 계정을 찾을 수 없습니다.");
+        return;
+      }
+
+      setActiveSellerId(sellerId);
       router.replace("/admin/dashboard");
     } catch {
       setError("네트워크 오류가 발생했습니다.");

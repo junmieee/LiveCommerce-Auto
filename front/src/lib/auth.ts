@@ -5,6 +5,7 @@
 export const ACCESS_TOKEN_KEY = "auth_token";
 export const REFRESH_TOKEN_KEY = "refresh_token";
 export const USER_ID_KEY = "user_id";
+export const SELLER_ID_KEY = "seller_id";
 
 type JwtPayload = {
   sub?: string; // userId stored in subject
@@ -43,6 +44,19 @@ export function setTokens(accessToken?: string, refreshToken?: string) {
   }
 }
 
+export function setActiveSellerId(sellerId?: string | number | null) {
+  if (typeof window === "undefined") return;
+  try {
+    if (sellerId === undefined || sellerId === null) {
+      localStorage.removeItem(SELLER_ID_KEY);
+      return;
+    }
+    localStorage.setItem(SELLER_ID_KEY, String(sellerId));
+  } catch {
+    // ignore storage errors (e.g., Safari private mode)
+  }
+}
+
 export function getAccessToken(): string | null {
   if (typeof window === "undefined") return null;
   try {
@@ -76,12 +90,22 @@ export function getUserId(): string | null {
   }
 }
 
+export function getSellerId(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return localStorage.getItem(SELLER_ID_KEY);
+  } catch {
+    return null;
+  }
+}
+
 export function clearTokens() {
   if (typeof window === "undefined") return;
   try {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(USER_ID_KEY);
+    localStorage.removeItem(SELLER_ID_KEY);
   } catch {
     // ignore
   }

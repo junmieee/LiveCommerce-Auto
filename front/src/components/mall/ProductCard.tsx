@@ -6,10 +6,13 @@ type Props = {
   id: string;
   name: string;
   price: number;
-  imageUrl: string;
+  imageUrl?: string | null;
   href?: string;
   onAddToCart?: (id: string) => void;
 };
+
+const PLACEHOLDER_IMAGE =
+  "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=800&auto=format&fit=crop";
 
 export default function ProductCard({
   id,
@@ -21,13 +24,16 @@ export default function ProductCard({
 }: Props) {
   const detailHref = href ?? `/mall/products/${id}`;
 
+  const displayImage =
+    imageUrl && imageUrl.trim().length > 0 ? imageUrl : PLACEHOLDER_IMAGE;
+
   return (
     <div className="flex flex-col rounded-2xl bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
       <Link href={detailHref} className="group block">
         <div className="aspect-[4/5] w-full overflow-hidden rounded-xl bg-gray-100">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={imageUrl}
+            src={displayImage}
             alt={name}
             className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
           />

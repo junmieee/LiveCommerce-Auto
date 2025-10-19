@@ -6,13 +6,14 @@ type ApiProductResponse = {
   sellerId?: number | null;
   name: string;
   description?: string | null;
+  descriptionHtml?: string | null;
   price: number | string;
   stockQuantity?: number | null;
   isActive?: boolean;
   createdAt?: string | null;
   updatedAt?: string | null;
-  imageUrl?: string | null;
-  imageUrls?: string[];
+  thumbnailImageKey?: string | null;
+  mainImageKeys?: string[] | null;
 };
 
 type DetailData = {
@@ -38,6 +39,30 @@ const PLACEHOLDER_GALLERY = [
   "https://images.unsplash.com/photo-1578898886200-486e7e3b9bc5?q=80&w=1600&auto=format&fit=crop",
 ];
 
+function parsePrice(value: number | string): number {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : 0;
+  }
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function sanitizeImageList(list?: string[] | null): string[] {
+  if (!Array.isArray(list)) return [];
+  return list.filter((item) => item && item.trim().length > 0);
+}
+
+function formatSellerName(
+  raw?: string,
+  sellerId?: number | null,
+): string | undefined {
+  if (raw && raw.length > 0) return `${raw} 스토어`;
+  if (sellerId !== undefined && sellerId !== null) {
+    return `판매자 #${sellerId} 스토어`;
+  }
+  return undefined;
+}
+
 async function fetchProductDetail(
   productId: string,
   sellerSlug?: string,
@@ -52,25 +77,29 @@ async function fetchProductDetail(
     if (!res.ok) return null;
     const data = (await res.json()) as ApiProductResponse;
 
-    const priceNumber =
-      typeof data.price === "string" ? Number(data.price) : data.price;
-
-    const gallery =
-      Array.isArray(data.imageUrls) && data.imageUrls.length > 0
-        ? data.imageUrls
+    const priceNumber = parsePrice(data.price);
+    const mainImages = sanitizeImageList(data.mainImageKeys);
+    const primaryImage =
+      (data.thumbnailImageKey && data.thumbnailImageKey.trim().length > 0
+        ? data.thumbnailImageKey
+        : mainImages[0]) ?? null;
+    const gallery = mainImages.length
+      ? mainImages
+      : primaryImage
+        ? [primaryImage]
         : undefined;
 
     return {
       id: String(data.id),
       name: data.name,
-      price: Number.isFinite(priceNumber) ? (priceNumber as number) : 0,
-      description: data.description,
-      sellerName: sellerSlug ? `${sellerSlug} 스토어` : undefined,
+      price: priceNumber,
+      description: data.descriptionHtml ?? data.description,
+      sellerName: formatSellerName(sellerSlug, data.sellerId),
       sellerCode: data.sellerId ? `S${data.sellerId}-${data.id}` : undefined,
       shippingFee: 3000,
       shippingInfo: "평일 오후 2시 이전 주문 시 당일 출고",
       stockQuantity: data.stockQuantity ?? null,
-      imageUrl: data.imageUrl ?? undefined,
+      imageUrl: primaryImage ?? undefined,
       gallery,
       badges: data.isActive === false ? ["일시 품절"] : undefined,
       createdAt: data.createdAt ?? null,
