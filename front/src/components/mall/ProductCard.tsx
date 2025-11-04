@@ -8,6 +8,7 @@ type Props = {
   price: number;
   imageUrl?: string | null;
   href?: string;
+  orderHref?: string;
   onAddToCart?: (id: string) => void;
 };
 
@@ -20,9 +21,12 @@ export default function ProductCard({
   price,
   imageUrl,
   href,
+  orderHref,
   onAddToCart,
 }: Props) {
   const detailHref = href ?? `/mall/products/${id}`;
+  const checkoutHref =
+    orderHref ?? `/mall/orders/new?productId=${encodeURIComponent(id)}`;
 
   const displayImage =
     imageUrl && imageUrl.trim().length > 0 ? imageUrl : PLACEHOLDER_IMAGE;
@@ -46,13 +50,21 @@ export default function ProductCard({
           </div>
         </div>
       </Link>
-      <button
-        className="mt-4 flex h-10 items-center justify-center rounded-full bg-[#F7A072] text-sm font-medium text-white transition hover:bg-orange-500"
-        onClick={() => onAddToCart?.(id)}
-        type="button"
-      >
-        장바구니 담기
-      </button>
+      <div className="mt-4 flex gap-2">
+        <Link
+          href={checkoutHref}
+          className="flex h-10 flex-1 items-center justify-center rounded-full border border-orange-200 bg-orange-50 text-sm font-medium text-orange-600 transition hover:bg-orange-100"
+        >
+          주문하기
+        </Link>
+        <button
+          className="flex h-10 flex-1 items-center justify-center rounded-full bg-[#F7A072] text-sm font-medium text-white transition hover:bg-orange-500"
+          onClick={() => onAddToCart?.(id)}
+          type="button"
+        >
+          장바구니
+        </button>
+      </div>
     </div>
   );
 }

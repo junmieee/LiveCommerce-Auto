@@ -61,7 +61,7 @@ export default function SellerMall({ data }: { data: SellerData }) {
   }, [data.products, q, sortKey, dateOrder, salesOrder, priceOrder]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pt-24">
       {/* Top bar (shared customer header) */}
       <CustomerHeader />
 
@@ -198,6 +198,7 @@ export default function SellerMall({ data }: { data: SellerData }) {
                 key={p.id}
                 {...p}
                 href={`/mall/products/${p.id}${data.seller ? "?seller=" + encodeURIComponent(data.seller) : ""}`}
+                orderHref={`/mall/orders/new?productId=${encodeURIComponent(p.id)}${data.seller ? "&seller=" + encodeURIComponent(data.seller) : ""}`}
                 onAddToCart={() => {}}
               />
             ))}

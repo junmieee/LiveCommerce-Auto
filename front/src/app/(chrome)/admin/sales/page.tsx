@@ -93,6 +93,10 @@ export default function SalesManagementPage() {
   const [total, setTotal] = useState(0);
   const [lastFetchedAt, setLastFetchedAt] = useState<Date | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmIds, setConfirmIds] = useState<number[]>([]);
+  const [confirmMessage, setConfirmMessage] =
+    useState("선택한 상품을 삭제하시겠습니까?");
 
   const limit = 10;
 
@@ -200,16 +204,61 @@ export default function SalesManagementPage() {
     );
   };
 
+  const deleteProducts = useCallback(
+    async (ids: number[]) => {
+      if (!sellerId || ids.length === 0) return;
+      setProcessing(true);
+      setError(null);
+      try {
+        const baseUrl = resolveApiBaseUrl();
+        if (!baseUrl) {
+          throw new Error("API 주소가 설정되어 있지 않습니다.");
+        }
+
+        await Promise.all(
+          ids.map(async (productId) => {
+            const target = `${baseUrl}/seller/products/${productId}`;
+            const res = await apiFetch(target, { method: "DELETE" });
+            if (!res.ok) {
+              const payload = (await res.json().catch(() => ({}))) as {
+                message?: string;
+                success?: boolean;
+              };
+              throw new Error(payload?.message || "상품 삭제에 실패했습니다.");
+            }
+          }),
+        );
+
+        await fetchProducts();
+        setSelectedIds([]);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "상품 삭제에 실패했습니다.",
+        );
+      } finally {
+        setProcessing(false);
+      }
+    },
+    [sellerId, fetchProducts],
+  );
+
   const handleDeleteSelected = () => {
     if (selectedIds.length === 0) return;
-    setItems((prev) => prev.filter((item) => !selectedIds.includes(item.id)));
-    setSelectedIds([]);
+    setConfirmIds(selectedIds);
+    setConfirmMessage(
+      `선택한 ${selectedIds.length}개 상품을 삭제하시겠습니까?`,
+    );
+    setConfirmOpen(true);
   };
 
   const handleDeleteAll = () => {
     if (displayedItems.length === 0) return;
-    setItems([]);
-    setSelectedIds([]);
+    const ids = displayedItems.map((item) => item.id);
+    setConfirmIds(ids);
+    setConfirmMessage(
+      `현재 목록의 ${ids.length}개 상품을 모두 삭제하시겠습니까?`,
+    );
+    setConfirmOpen(true);
   };
 
   const handleToggleActive = async (id: number) => {
@@ -225,6 +274,24 @@ export default function SalesManagementPage() {
   const handlePageChange = (nextPage: number) => {
     if (nextPage < 1 || nextPage > totalPages || nextPage === page) return;
     setPage(nextPage);
+  };
+
+  const handleConfirmDelete = () => {
+    if (confirmIds.length === 0) {
+      setConfirmOpen(false);
+      return;
+    }
+    const ids = [...confirmIds];
+    setConfirmOpen(false);
+    setConfirmIds([]);
+    void deleteProducts(ids);
+  };
+
+  const handleCancelDelete = () => {
+    setConfirmOpen(false);
+    if (!processing) {
+      setConfirmIds([]);
+    }
   };
 
   if (!sellerId) {
@@ -258,7 +325,8 @@ export default function SalesManagementPage() {
             <button
               type="button"
               onClick={handleDeleteAll}
-              className="rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-600 transition hover:border-gray-400 hover:text-gray-900"
+              disabled={processing}
+              className="rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-600 transition hover:border-gray-400 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
             >
               전체삭제
             </button>
@@ -266,7 +334,7 @@ export default function SalesManagementPage() {
               type="button"
               onClick={handleDeleteSelected}
               className="rounded-full border border-gray-300 px-6 py-2 text-sm font-medium text-gray-600 transition hover:border-gray-400 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={selectedIds.length === 0}
+              disabled={selectedIds.length === 0 || processing}
             >
               선택상품 삭제
             </button>
@@ -454,12 +522,15 @@ export default function SalesManagementPage() {
                         <td className="px-4 py-5 text-center">
                           <button
                             type="button"
-                            onClick={() =>
-                              setItems((prev) =>
-                                prev.filter((x) => x.id !== item.id),
-                              )
-                            }
-                            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition hover:border-red-200 hover:text-red-500"
+                            onClick={() => {
+                              setConfirmIds([item.id]);
+                              setConfirmMessage(
+                                `\"${item.name}\" 상품을 삭제하시겠습니까?`,
+                              );
+                              setConfirmOpen(true);
+                            }}
+                            disabled={processing}
+                            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition hover:border-red-200 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50"
                             aria-label="상품 삭제"
                           >
                             <Trash2 className="h-5 w-5" />
@@ -531,6 +602,14 @@ export default function SalesManagementPage() {
             </div>
           </div>
         </section>
+        {confirmOpen ? (
+          <DeleteConfirmModal
+            message={confirmMessage}
+            onCancel={handleCancelDelete}
+            onConfirm={handleConfirmDelete}
+            disabled={processing}
+          />
+        ) : null}
       </div>
     </SellerRouteGuard>
   );
@@ -623,6 +702,44 @@ function SortSelect({
           </option>
         ))}
       </select>
+    </div>
+  );
+}
+
+function DeleteConfirmModal({
+  message,
+  onCancel,
+  onConfirm,
+  disabled,
+}: {
+  message: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+        <h2 className="text-lg font-semibold text-gray-900">상품 삭제</h2>
+        <p className="mt-3 text-sm text-gray-600">{message}</p>
+        <div className="mt-6 flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 transition hover:border-gray-400 hover:text-gray-900"
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={disabled}
+            className="rounded-full bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:bg-red-300"
+          >
+            삭제하기
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

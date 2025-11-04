@@ -3,26 +3,13 @@
 import { useMemo, useState } from "react";
 import CustomerHeader from "@/components/headers/CustomerHeader";
 import { Minus, Plus, ShoppingCart, Zap } from "lucide-react";
-
-type ProductDetail = {
-  id: string;
-  name: string;
-  price: number;
-  description?: string | null;
-  sellerName?: string | null;
-  sellerCode?: string | null;
-  shippingFee?: number | null;
-  shippingInfo?: string | null;
-  stockQuantity?: number | null;
-  imageUrl?: string | null;
-  gallery?: string[];
-  badges?: string[];
-  createdAt?: string | null;
-};
+import { MallProductDetail } from "@/types/mall";
+import { useRouter } from "next/navigation";
 
 type Props = {
-  detail: ProductDetail;
+  detail: MallProductDetail;
   fallbackImage?: string;
+  sellerSlug?: string;
 };
 
 const DEFAULT_IMAGE =
@@ -31,9 +18,11 @@ const DEFAULT_IMAGE =
 export default function ProductDetailView({
   detail,
   fallbackImage = DEFAULT_IMAGE,
+  sellerSlug,
 }: Props) {
   const [quantity, setQuantity] = useState(1);
   const [active, setActive] = useState(0);
+  const router = useRouter();
 
   const images = useMemo(() => {
     const list = detail.gallery?.length ? detail.gallery : [];
@@ -64,8 +53,13 @@ export default function ProductDetailView({
   };
 
   const handleBuyNow = () => {
-    // TODO: 결제 플로우 연결
-    console.log("buy-now", { productId: detail.id, quantity });
+    const params = new URLSearchParams();
+    params.set("productId", detail.id);
+    params.set("quantity", String(quantity));
+    if (sellerSlug) {
+      params.set("seller", sellerSlug);
+    }
+    router.push(`/mall/orders/new?${params.toString()}`);
   };
 
   return (
@@ -231,7 +225,7 @@ export default function ProductDetailView({
                     className="flex h-12 items-center justify-center gap-2 rounded-full bg-orange-500 text-sm font-semibold text-white transition hover:bg-orange-600"
                   >
                     <Zap className="h-4 w-4" />
-                    바로 구매하기
+                    주문하기
                   </button>
                 </div>
               </div>
