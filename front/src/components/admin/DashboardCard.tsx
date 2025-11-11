@@ -6,11 +6,11 @@ export function DashboardCard({
   title: string;
 }) {
   return (
-    <div className="bg-white rounded-lg px-4">
-      <div className="border-b border-[#E5E5E5] h-14 text-lg text-gray-700 flex items-center pl-3">
+    <div className="rounded-2xl bg-white px-4 py-4 shadow-sm sm:px-6">
+      <div className="flex h-14 items-center border-b border-[#E5E5E5] text-lg text-gray-700">
         {title}
       </div>
-      <div>{children}</div>
+      <div className="py-4 text-gray-800">{children}</div>
     </div>
   );
 }

@@ -2,8 +2,8 @@ import { DashboardCard } from "@/components/admin/DashboardCard";
 
 export default function Page() {
   return (
-    <div className="grid grid-rows-3 gap-12 py-14 px-20 ">
-      <div className="h-[400px] grid grid-cols-2 gap-12">
+    <div className="grid gap-8 py-10">
+      <div className="grid gap-6 lg:grid-cols-2">
         <DashboardCard title="주문배송">1</DashboardCard>
         <DashboardCard title="공지사항">1</DashboardCard>
       </div>

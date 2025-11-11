@@ -382,184 +382,300 @@ export default function SalesManagementPage() {
               />
             </div>
 
-            <div className="overflow-hidden rounded-2xl border border-gray-100">
-              <table className="min-w-full divide-y divide-gray-100 text-sm">
-                <thead className="bg-gray-50 text-xs font-medium uppercase text-gray-500">
-                  <tr>
-                    <th scope="col" className="w-12 px-4 py-4 text-left">
-                      <input
-                        type="checkbox"
-                        className="h-4 w-4 rounded border-gray-300 text-orange-400 focus:ring-orange-400"
-                        checked={allSelected}
-                        onChange={(event) =>
-                          toggleSelectAll(event.target.checked)
-                        }
-                        disabled={displayedItems.length === 0}
-                      />
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-4 text-left text-gray-600"
-                    >
-                      상품정보
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-4 text-right text-gray-600"
-                    >
-                      가격
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-4 text-center text-gray-600"
-                    >
-                      잔여수량
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-4 text-center text-gray-600"
-                    >
-                      추가일자
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-4 text-center text-gray-600"
-                    >
-                      수정버튼
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-4 text-center text-gray-600"
-                    >
-                      삭제버튼
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-4 text-center text-gray-600"
-                    >
-                      활성버튼
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 bg-white">
-                  {loading ? (
+            <div className="hidden overflow-hidden rounded-2xl border border-gray-100 md:block">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-100 text-sm">
+                  <thead className="bg-gray-50 text-xs font-medium uppercase text-gray-500">
                     <tr>
-                      <td
-                        colSpan={8}
-                        className="px-6 py-12 text-center text-sm text-gray-500"
+                      <th scope="col" className="w-12 px-4 py-4 text-left">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 rounded border-gray-300 text-orange-400 focus:ring-orange-400"
+                          checked={allSelected}
+                          onChange={(event) =>
+                            toggleSelectAll(event.target.checked)
+                          }
+                          disabled={displayedItems.length === 0}
+                        />
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-4 py-4 text-left text-gray-600"
                       >
-                        <div className="flex items-center justify-center gap-3">
-                          <Loader2 className="h-5 w-5 animate-spin" />
-                          <span>불러오는 중...</span>
-                        </div>
-                      </td>
-                    </tr>
-                  ) : displayedItems.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={8}
-                        className="px-6 py-12 text-center text-sm text-gray-400"
+                        상품정보
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-4 py-4 text-right text-gray-600"
                       >
-                        표시할 판매 상품이 없습니다.
-                      </td>
+                        가격
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-4 py-4 text-center text-gray-600"
+                      >
+                        잔여수량
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-4 py-4 text-center text-gray-600"
+                      >
+                        추가일자
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-4 py-4 text-center text-gray-600"
+                      >
+                        수정버튼
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-4 py-4 text-center text-gray-600"
+                      >
+                        삭제버튼
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-4 py-4 text-center text-gray-600"
+                      >
+                        활성버튼
+                      </th>
                     </tr>
-                  ) : (
-                    displayedItems.map((item) => (
-                      <tr key={item.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-5">
-                          <input
-                            type="checkbox"
-                            className="h-4 w-4 rounded border-gray-300 text-orange-400 focus:ring-orange-400"
-                            checked={selectedIds.includes(item.id)}
-                            onChange={() => toggleSelectItem(item.id)}
-                          />
-                        </td>
-                        <td className="px-4 py-5">
-                          <div className="flex items-center gap-4">
-                            <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl bg-gray-100 text-xs text-gray-500">
-                              {item.thumbnailImageKey ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                  src={item.thumbnailImageKey}
-                                  alt={item.name}
-                                  className="h-full w-full object-cover"
-                                  onError={(event) => {
-                                    event.currentTarget.style.display = "none";
-                                  }}
-                                />
-                              ) : (
-                                <span>IMG</span>
-                              )}
-                            </div>
-                            <div>
-                              <p className="text-base font-medium text-gray-900">
-                                {item.name}
-                              </p>
-                              <p className="text-sm text-gray-500">
-                                상품 ID #{item.id}
-                              </p>
-                            </div>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 bg-white">
+                    {loading ? (
+                      <tr>
+                        <td
+                          colSpan={8}
+                          className="px-6 py-12 text-center text-sm text-gray-500"
+                        >
+                          <div className="flex items-center justify-center gap-3">
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                            <span>불러오는 중...</span>
                           </div>
                         </td>
-                        <td className="px-4 py-5 text-right text-base font-semibold text-gray-900">
-                          {numberFormatter.format(item.price)}원
-                        </td>
-                        <td className="px-4 py-5 text-center text-base text-gray-700">
-                          {item.stockQuantity}개
-                        </td>
-                        <td className="px-4 py-5 text-center text-sm text-gray-600">
-                          {formatDateTime(item.createdAt)}
-                        </td>
-                        <td className="px-4 py-5 text-center">
-                          <button
-                            type="button"
-                            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition hover:border-gray-300 hover:text-gray-900"
-                            aria-label="상품 수정"
-                          >
-                            <PenSquare className="h-5 w-5" />
-                          </button>
-                        </td>
-                        <td className="px-4 py-5 text-center">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setConfirmIds([item.id]);
-                              setConfirmMessage(
-                                `\"${item.name}\" 상품을 삭제하시겠습니까?`,
-                              );
-                              setConfirmOpen(true);
-                            }}
-                            disabled={processing}
-                            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition hover:border-red-200 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50"
-                            aria-label="상품 삭제"
-                          >
-                            <Trash2 className="h-5 w-5" />
-                          </button>
-                        </td>
-                        <td className="px-4 py-5 text-center">
-                          <button
-                            type="button"
-                            onClick={() => handleToggleActive(item.id)}
-                            className={`relative inline-flex h-7 w-14 items-center rounded-full px-1 transition ${
-                              item.isActive ? "bg-orange-400" : "bg-gray-200"
-                            }`}
-                            aria-pressed={item.isActive}
-                            disabled={processing}
-                          >
-                            <span
-                              className={`h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                                item.isActive
-                                  ? "translate-x-7"
-                                  : "translate-x-0"
-                              }`}
-                            />
-                          </button>
+                      </tr>
+                    ) : displayedItems.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={8}
+                          className="px-6 py-12 text-center text-sm text-gray-400"
+                        >
+                          표시할 판매 상품이 없습니다.
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                    ) : (
+                      displayedItems.map((item) => (
+                        <tr key={item.id} className="hover:bg-gray-50">
+                          <td className="px-4 py-5">
+                            <input
+                              type="checkbox"
+                              className="h-4 w-4 rounded border-gray-300 text-orange-400 focus:ring-orange-400"
+                              checked={selectedIds.includes(item.id)}
+                              onChange={() => toggleSelectItem(item.id)}
+                            />
+                          </td>
+                          <td className="px-4 py-5">
+                            <div className="flex items-center gap-4">
+                              <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl bg-gray-100 text-xs text-gray-500">
+                                {item.thumbnailImageKey ? (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={item.thumbnailImageKey}
+                                    alt={item.name}
+                                    className="h-full w-full object-cover"
+                                    onError={(event) => {
+                                      event.currentTarget.style.display =
+                                        "none";
+                                    }}
+                                  />
+                                ) : (
+                                  <span>IMG</span>
+                                )}
+                              </div>
+                              <div>
+                                <p className="text-base font-medium text-gray-900">
+                                  {item.name}
+                                </p>
+                                <p className="text-sm text-gray-500">
+                                  상품 ID #{item.id}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-5 text-right text-base font-semibold text-gray-900">
+                            {numberFormatter.format(item.price)}원
+                          </td>
+                          <td className="px-4 py-5 text-center text-base text-gray-700">
+                            {item.stockQuantity}개
+                          </td>
+                          <td className="px-4 py-5 text-center text-sm text-gray-600">
+                            {formatDateTime(item.createdAt)}
+                          </td>
+                          <td className="px-4 py-5 text-center">
+                            <button
+                              type="button"
+                              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition hover:border-gray-300 hover:text-gray-900"
+                              aria-label="상품 수정"
+                            >
+                              <PenSquare className="h-5 w-5" />
+                            </button>
+                          </td>
+                          <td className="px-4 py-5 text-center">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setConfirmIds([item.id]);
+                                setConfirmMessage(
+                                  `"${item.name}" 상품을 삭제하시겠습니까?`,
+                                );
+                                setConfirmOpen(true);
+                              }}
+                              disabled={processing}
+                              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-gray-500 transition hover:border-red-200 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+                              aria-label="상품 삭제"
+                            >
+                              <Trash2 className="h-5 w-5" />
+                            </button>
+                          </td>
+                          <td className="px-4 py-5 text-center">
+                            <button
+                              type="button"
+                              onClick={() => handleToggleActive(item.id)}
+                              className={`relative inline-flex h-7 w-14 items-center rounded-full px-1 transition ${
+                                item.isActive ? "bg-orange-400" : "bg-gray-200"
+                              }`}
+                              aria-pressed={item.isActive}
+                              disabled={processing}
+                            >
+                              <span
+                                className={`h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                                  item.isActive
+                                    ? "translate-x-7"
+                                    : "translate-x-0"
+                                }`}
+                              />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="space-y-4 md:hidden">
+              {loading ? (
+                <div className="rounded-2xl border border-gray-100 bg-white py-12 text-center text-sm text-gray-500">
+                  <Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin" />
+                  불러오는 중...
+                </div>
+              ) : displayedItems.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 py-12 text-center text-sm text-gray-500">
+                  표시할 판매 상품이 없습니다.
+                </div>
+              ) : (
+                displayedItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="space-y-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
+                  >
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        className="mt-1 h-4 w-4 rounded border-gray-300 text-orange-400 focus:ring-orange-400"
+                        checked={selectedIds.includes(item.id)}
+                        onChange={() => toggleSelectItem(item.id)}
+                      />
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl bg-gray-100 text-xs text-gray-500">
+                          {item.thumbnailImageKey ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={item.thumbnailImageKey}
+                              alt={item.name}
+                              className="h-full w-full object-cover"
+                              onError={(event) => {
+                                event.currentTarget.style.display = "none";
+                              }}
+                            />
+                          ) : (
+                            <span>IMG</span>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-base font-semibold text-gray-900">
+                            {item.name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            상품 ID #{item.id}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-sm text-gray-600">
+                      <div>
+                        <p className="text-gray-500">가격</p>
+                        <p className="font-semibold text-gray-900">
+                          {numberFormatter.format(item.price)}원
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">잔여수량</p>
+                        <p className="font-semibold text-gray-900">
+                          {item.stockQuantity}개
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">추가일자</p>
+                        <p className="text-sm">
+                          {formatDateTime(item.createdAt)}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-end">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleActive(item.id)}
+                          className={`relative inline-flex h-7 w-14 items-center rounded-full px-1 text-white transition ${
+                            item.isActive ? "bg-orange-400" : "bg-gray-200"
+                          }`}
+                          aria-pressed={item.isActive}
+                          disabled={processing}
+                        >
+                          <span
+                            className={`h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                              item.isActive ? "translate-x-7" : "translate-x-0"
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 pt-1 text-sm">
+                      <button
+                        type="button"
+                        className="flex items-center justify-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-gray-600"
+                      >
+                        <PenSquare className="h-4 w-4" /> 수정
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setConfirmIds([item.id]);
+                          setConfirmMessage(
+                            `"${item.name}" 상품을 삭제하시겠습니까?`,
+                          );
+                          setConfirmOpen(true);
+                        }}
+                        disabled={processing}
+                        className="flex items-center justify-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-red-500"
+                      >
+                        <Trash2 className="h-4 w-4" /> 삭제
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-4 pt-2 text-sm text-gray-500">

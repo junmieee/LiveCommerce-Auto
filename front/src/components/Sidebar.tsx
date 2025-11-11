@@ -4,7 +4,7 @@ import { navItems as adminNavItems } from "@/constants/nav";
 import { cn } from "@/libs/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronsLeft, ChevronsRight } from "lucide-react";
+import { ChevronsLeft, ChevronsRight, X } from "lucide-react";
 export type NavItem = {
   label: string;
   href: string;
@@ -16,11 +16,15 @@ export default function Sidebar({
   setIsOpen,
   items,
   variant = "admin",
+  isDrawerOpen = false,
+  onDrawerClose,
 }: {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   items?: NavItem[];
   variant?: "admin" | "customer";
+  isDrawerOpen?: boolean;
+  onDrawerClose?: () => void;
 }) {
   // test
   const pathname = usePathname();
@@ -28,33 +32,65 @@ export default function Sidebar({
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
+  const handleNavigate = () => {
+    if (onDrawerClose) {
+      onDrawerClose();
+    }
+  };
+
+  const dividerColor =
+    variant === "customer" ? "border-gray-300" : "border-gray-100";
+  const chevronColor =
+    variant === "customer" ? "text-gray-600" : "text-gray-100";
+
   return (
     <aside
-      className={`h-screen transition-all duration-300 flex flex-col justify-between fixed left-0 top-0 z-40 ${
+      className={cn(
+        "fixed inset-y-0 left-0 z-40 flex h-screen flex-col justify-between border-r border-black/10 transition-all duration-300",
         variant === "customer"
           ? "bg-sidebarCustomer text-gray-900"
-          : "bg-gray-900 text-white"
-      } ${isOpen ? "w-64" : "w-20"}`}
+          : "bg-gray-900 text-white",
+        isOpen ? "lg:w-64" : "lg:w-20",
+        "w-64 shadow-xl lg:shadow-none",
+        isDrawerOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
+      )}
     >
       <div>
-        <div onClick={toggleSidebar}>
-          <div className="h-24 flex items-center justify-center">
-            <span className="text-xl font-bold">서비스명</span>
-          </div>
-          <div className="flex items-center justity-center w-30 px-4 group">
-            <span className="flex-grow border-b border-gray-100"></span>
-            {isOpen ? (
-              <ChevronsLeft
-                size={40}
-                className="ml-2 text-gray-100 group-hover:animate-wiggleLeft transition-transform"
-              />
-            ) : (
-              <ChevronsRight
-                size={40}
-                className="ml-2 text-gray-100 group-hover:animate-wiggleRight transition-transform"
-              />
-            )}
-          </div>
+        <div className="flex h-24 items-center justify-between px-4">
+          <span className="text-xl font-bold">서비스명</span>
+          <button
+            type="button"
+            className="rounded-full p-2 text-white transition hover:bg-white/10 lg:hidden"
+            onClick={() => onDrawerClose?.()}
+            aria-label="사이드바 닫기"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div
+          className="group hidden cursor-pointer items-center justify-center px-4 lg:flex"
+          onClick={toggleSidebar}
+        >
+          <span className={cn("flex-grow border-b", dividerColor)} />
+          {isOpen ? (
+            <ChevronsLeft
+              size={32}
+              className={cn(
+                "ml-2 transition-transform",
+                chevronColor,
+                "group-hover:animate-wiggleLeft",
+              )}
+            />
+          ) : (
+            <ChevronsRight
+              size={32}
+              className={cn(
+                "ml-2 transition-transform",
+                chevronColor,
+                "group-hover:animate-wiggleRight",
+              )}
+            />
+          )}
         </div>
         <nav
           className={`mt-6 px-4 space-y-6 ${variant === "customer" ? "text-gray-600" : "text-[#818490]"}`}
@@ -72,9 +108,15 @@ export default function Sidebar({
                   ? " hover:bg-gray-700 text-base transition-all hover:text-white"
                   : "hover:bg-gray-700 transition-all hover:text-white",
               )}
+              onClick={handleNavigate}
             >
               <span className="w-8 shrink-0 px-1">{item.icon}</span>
-              <span className="ml-2 min-w-0 overflow-hidden whitespace-nowrap text-lg">
+              <span
+                className={cn(
+                  "ml-2 min-w-0 overflow-hidden whitespace-nowrap text-lg",
+                  !isOpen && "lg:hidden",
+                )}
+              >
                 {item.label}
               </span>
             </Link>

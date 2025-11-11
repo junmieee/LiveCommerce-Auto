@@ -1,12 +1,34 @@
 "use client";
 
-import { Bell } from "lucide-react";
+import { cn } from "@/libs/utils";
+import { Bell, Menu } from "lucide-react";
 import React from "react";
 
-export default function CustomerHeader({ title }: { title?: string }) {
+export default function CustomerHeader({
+  title,
+  isSidebarOpen,
+  onOpenDrawer,
+}: {
+  title?: string;
+  isSidebarOpen: boolean;
+  onOpenDrawer: () => void;
+}) {
   return (
-    <header className="flex items-center justify-between px-6 py-3 border-b bg-white fixed w-full top-0 right-0 z-30">
+    <header
+      className={cn(
+        "fixed top-0 left-0 right-0 z-30 flex items-center justify-between gap-3 border-b bg-white/95 px-4 py-3 backdrop-blur sm:px-6",
+        isSidebarOpen ? "lg:left-64" : "lg:left-20",
+      )}
+    >
       <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onOpenDrawer}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-gray-600 transition hover:bg-gray-100 lg:hidden"
+          aria-label="사이드바 열기"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-200 text-orange-700 font-bold">
           ㅇㅇ
         </div>

@@ -165,7 +165,7 @@ export default function AdminOrdersPage() {
         />
       </section>
 
-      <section className="space-y-5 rounded-3xl bg-white p-6 shadow-sm">
+      <section className="space-y-5 rounded-3xl bg-white p-4 shadow-sm sm:p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap items-center gap-2">
             {STATUS_OPTIONS.map((option) => (
@@ -185,7 +185,7 @@ export default function AdminOrdersPage() {
             ))}
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <div className="relative flex items-center">
+            <div className="relative flex w-full items-center sm:w-auto">
               <Search className="absolute left-3 h-4 w-4 text-gray-400" />
               <input
                 type="search"
@@ -195,7 +195,7 @@ export default function AdminOrdersPage() {
                 className="w-full rounded-full border border-gray-200 bg-gray-50 py-2 pl-9 pr-4 text-sm text-gray-700 placeholder:text-gray-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-100"
               />
             </div>
-            <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm text-gray-600">
+            <div className="flex flex-1 items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm text-gray-600 sm:flex-none">
               <Filter className="h-4 w-4" />
               <select
                 value={providerFilter}
@@ -220,86 +220,159 @@ export default function AdminOrdersPage() {
           </div>
         ) : null}
 
-        <div className="overflow-hidden rounded-2xl border border-gray-100">
-          <table className="min-w-full divide-y divide-gray-100">
-            <thead className="bg-gray-50">
-              <tr className="text-left text-sm font-medium text-gray-500">
-                <th className="px-6 py-4">상품 정보</th>
-                <th className="px-6 py-4">수량</th>
-                <th className="px-6 py-4">결제 금액</th>
-                <th className="px-6 py-4">결제수단</th>
-                <th className="px-6 py-4">주문 상태</th>
-                <th className="px-6 py-4">확정일시</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 bg-white text-sm text-gray-700">
-              {isLoading ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="px-6 py-10 text-center text-gray-500"
-                  >
-                    <Loader2 className="mx-auto h-5 w-5 animate-spin" />
-                  </td>
+        <div className="hidden overflow-hidden rounded-2xl border border-gray-100 lg:block">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-100">
+              <thead className="bg-gray-50">
+                <tr className="text-left text-sm font-medium text-gray-500">
+                  <th className="px-6 py-4">상품 정보</th>
+                  <th className="px-6 py-4">수량</th>
+                  <th className="px-6 py-4">결제 금액</th>
+                  <th className="px-6 py-4">결제수단</th>
+                  <th className="px-6 py-4">주문 상태</th>
+                  <th className="px-6 py-4">확정일시</th>
                 </tr>
-              ) : filteredOrders.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="px-6 py-16 text-center text-gray-400"
-                  >
-                    <PackageCheck className="mx-auto h-8 w-8 text-gray-300" />
-                    <p className="mt-3 text-sm">표시할 주문이 없습니다.</p>
-                  </td>
-                </tr>
-              ) : (
-                filteredOrders.map((order) => (
-                  <tr key={order.id} className="transition hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-4">
-                        <div className="h-14 w-14 overflow-hidden rounded-xl bg-gray-100">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={order.productImage || PLACEHOLDER_IMAGE}
-                            alt={order.productName}
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <div className="text-sm font-semibold text-gray-900">
-                            {order.productName}
-                          </div>
-                          <div className="text-xs text-gray-400">
-                            주문번호 {order.orderId}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="font-medium text-gray-900">
-                        {order.quantity.toLocaleString()}개
-                      </div>
-                      <div className="text-xs text-gray-400">
-                        단가 {formatCurrency(order.unitPrice)}원
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 font-semibold text-gray-900">
-                      {formatCurrency(order.amount)}원
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {order.provider === "toss" ? "토스페이" : "카카오페이"}
-                    </td>
-                    <td className="px-6 py-4">
-                      <StatusChip status={order.status} />
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {order.confirmedAt ? formatDate(order.confirmedAt) : "-"}
+              </thead>
+              <tbody className="divide-y divide-gray-100 bg-white text-sm text-gray-700">
+                {isLoading ? (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="px-6 py-10 text-center text-gray-500"
+                    >
+                      <Loader2 className="mx-auto h-5 w-5 animate-spin" />
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : filteredOrders.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="px-6 py-16 text-center text-gray-400"
+                    >
+                      <PackageCheck className="mx-auto h-8 w-8 text-gray-300" />
+                      <p className="mt-3 text-sm">표시할 주문이 없습니다.</p>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredOrders.map((order) => (
+                    <tr key={order.id} className="transition hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-4">
+                          <div className="h-14 w-14 overflow-hidden rounded-xl bg-gray-100">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={order.productImage || PLACEHOLDER_IMAGE}
+                              alt={order.productName}
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <div className="text-sm font-semibold text-gray-900">
+                              {order.productName}
+                            </div>
+                            <div className="text-xs text-gray-400">
+                              주문번호 {order.orderId}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="font-medium text-gray-900">
+                          {order.quantity.toLocaleString()}개
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          단가 {formatCurrency(order.unitPrice)}원
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 font-semibold text-gray-900">
+                        {formatCurrency(order.amount)}원
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">
+                        {order.provider === "toss" ? "토스페이" : "카카오페이"}
+                      </td>
+                      <td className="px-6 py-4">
+                        <StatusChip status={order.status} />
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">
+                        {order.confirmedAt
+                          ? formatDate(order.confirmedAt)
+                          : "-"}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="space-y-4 lg:hidden">
+          {isLoading ? (
+            <div className="flex items-center justify-center rounded-2xl border border-gray-100 bg-gray-50 py-10 text-gray-500">
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" /> 불러오는 중
+            </div>
+          ) : filteredOrders.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 py-10 text-center text-sm text-gray-500">
+              표시할 주문이 없습니다.
+            </div>
+          ) : (
+            filteredOrders.map((order) => (
+              <div
+                key={order.id}
+                className="space-y-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-base font-semibold text-gray-900">
+                      {order.productName}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      주문번호 {order.orderId}
+                    </p>
+                  </div>
+                  <StatusChip status={order.status} />
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="h-16 w-16 overflow-hidden rounded-xl bg-gray-100">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={order.productImage || PLACEHOLDER_IMAGE}
+                      alt={order.productName}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 space-y-1 text-sm text-gray-700">
+                    <div className="flex justify-between">
+                      <span>수량</span>
+                      <span className="font-semibold">
+                        {order.quantity.toLocaleString()}개
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>결제금액</span>
+                      <span className="font-semibold">
+                        {formatCurrency(order.amount)}원
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>결제수단</span>
+                      <span>
+                        {order.provider === "toss" ? "토스페이" : "카카오페이"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>확정</span>
+                      <span>
+                        {order.confirmedAt
+                          ? formatDate(order.confirmedAt)
+                          : "-"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </section>
     </div>
