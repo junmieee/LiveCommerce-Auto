@@ -13,6 +13,8 @@ public interface ProductRepository {
 
   Optional<Product> findById(Long id);
 
+  Optional<Product> findByIdForUpdate(Long id);
+
   Optional<Product> findByIdAndIsActiveTrue(Long id);
 
   Page<Product> findBySellerId(Long sellerId, Pageable pageable);

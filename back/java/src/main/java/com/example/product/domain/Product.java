@@ -42,4 +42,6 @@ public class Product {
   private Boolean isActive;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
+
+  @Version private Long version;
 }
