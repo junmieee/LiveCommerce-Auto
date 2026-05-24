@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1280" viewBox="0 0 1920 1280" role="img" aria-labelledby="title desc">
+  <title id="title">LiveCommerce Domain Architecture Flowchart</title>
+  <desc id="desc">Domain-centered architecture flowchart for LiveCommerce-Auto showing clients, frontend, backend domains, data stores, and external payment providers.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#d7d7d7" />
+    </marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000" flood-opacity="0.28"/>
+    </filter>
+    <style>
+      .bg { fill: #141414; }
+      .group { fill: #1b1b1b; stroke: #333; stroke-width: 2; }
+      .box { fill: #333; stroke: #474747; stroke-width: 1.5; filter: url(#shadow); }
+      .store { fill: #333; stroke: #555; stroke-width: 1.5; filter: url(#shadow); }
+      .label { fill: #f2f2f2; font: 28px Arial, Helvetica, sans-serif; }
+      .group-label { fill: #f2f2f2; font: 28px Arial, Helvetica, sans-serif; }
+      .small { fill: #f2f2f2; font: 24px Arial, Helvetica, sans-serif; }
+      .line { fill: none; stroke: #d0d0d0; stroke-width: 2; marker-end: url(#arrow); }
+      .muted-line { fill: none; stroke: #a8a8a8; stroke-width: 1.8; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1920" height="1280"/>
+
+  <rect class="group" x="24" y="150" width="270" height="310"/>
+  <text class="group-label" x="150" y="175" text-anchor="middle">Client</text>
+  <rect class="box" x="60" y="205" width="200" height="70"/>
+  <text class="label" x="160" y="250" text-anchor="middle">Seller User</text>
+  <rect class="box" x="60" y="345" width="200" height="70"/>
+  <text class="label" x="160" y="390" text-anchor="middle">Customer</text>
+
+  <rect class="group" x="360" y="24" width="720" height="500"/>
+  <text class="group-label" x="720" y="52" text-anchor="middle">Frontend - Next.js</text>
+  <rect class="box" x="445" y="205" width="260" height="70"/>
+  <text class="label" x="575" y="250" text-anchor="middle">Seller Admin UI</text>
+  <rect class="box" x="445" y="345" width="180" height="70"/>
+  <text class="label" x="535" y="390" text-anchor="middle">Mall UI</text>
+  <rect class="box" x="750" y="72" width="300" height="72"/>
+  <text class="label" x="900" y="118" text-anchor="middle">Payment API Routes</text>
+
+  <rect class="group" x="1150" y="24" width="430" height="170"/>
+  <text class="group-label" x="1365" y="52" text-anchor="middle">External Service</text>
+  <rect class="box" x="1185" y="72" width="360" height="72"/>
+  <text class="label" x="1365" y="118" text-anchor="middle">KakaoPay / Toss Payments</text>
+
+  <rect class="group" x="715" y="548" width="865" height="680"/>
+  <text class="group-label" x="1148" y="573" text-anchor="middle">Backend - Spring Boot</text>
+
+  <rect class="box" x="1240" y="600" width="285" height="70"/>
+  <text class="label" x="1383" y="645" text-anchor="middle">Settlement Summary</text>
+  <rect class="box" x="1236" y="744" width="260" height="70"/>
+  <text class="label" x="1366" y="789" text-anchor="middle">Shipping Domain</text>
+  <rect class="box" x="1236" y="884" width="260" height="70"/>
+  <text class="label" x="1366" y="929" text-anchor="middle">Payment Domain</text>
+  <rect class="box" x="1252" y="1135" width="230" height="70"/>
+  <text class="label" x="1367" y="1180" text-anchor="middle">User / Auth</text>
+  <rect class="box" x="1252" y="1015" width="230" height="70"/>
+  <text class="label" x="1367" y="1060" text-anchor="middle">Seller Domain</text>
+  <rect class="box" x="782" y="966" width="250" height="70"/>
+  <text class="label" x="907" y="1011" text-anchor="middle">Product Domain</text>
+  <rect class="box" x="792" y="736" width="230" height="70"/>
+  <text class="label" x="907" y="781" text-anchor="middle">Order Domain</text>
+  <rect class="box" x="1240" y="1206" width="250" height="58"/>
+  <text class="small" x="1365" y="1243" text-anchor="middle">Storage Service</text>
+
+  <rect class="group" x="1650" y="555" width="235" height="670"/>
+  <text class="group-label" x="1768" y="583" text-anchor="middle">Data Store</text>
+
+  <ellipse class="store" cx="1768" cy="985" rx="75" ry="25"/>
+  <rect class="store" x="1693" y="985" width="150" height="78"/>
+  <ellipse class="store" cx="1768" cy="1063" rx="75" ry="25"/>
+  <text class="label" x="1768" y="1035" text-anchor="middle">PostgreSQL</text>
+
+  <ellipse class="store" cx="1768" cy="1130" rx="42" ry="16"/>
+  <rect class="store" x="1726" y="1130" width="84" height="55"/>
+  <ellipse class="store" cx="1768" cy="1185" rx="42" ry="16"/>
+  <text class="small" x="1768" y="1167" text-anchor="middle">Redis</text>
+
+  <ellipse class="store" cx="1768" cy="1210" rx="82" ry="22"/>
+  <rect class="store" x="1686" y="1210" width="164" height="48"/>
+  <ellipse class="store" cx="1768" cy="1258" rx="82" ry="22"/>
+  <text class="small" x="1768" y="1245" text-anchor="middle">Local Storage</text>
+
+  <path class="line" d="M260 240 L445 240"/>
+  <path class="line" d="M260 380 L445 380"/>
+  <path class="muted-line" d="M625 380 C665 300, 705 110, 750 108"/>
+  <path class="line" d="M1050 108 L1185 108"/>
+
+  <path class="line" d="M705 240 C920 240, 1050 245, 1252 1050"/>
+  <path class="line" d="M705 240 C920 270, 1040 350, 1252 1170"/>
+  <path class="line" d="M705 240 C880 310, 990 500, 1240 635"/>
+  <path class="line" d="M705 240 C770 390, 790 590, 907 736"/>
+  <path class="line" d="M625 380 C735 420, 750 570, 907 736"/>
+  <path class="line" d="M625 380 C720 500, 740 820, 907 966"/>
+  <path class="line" d="M625 380 C730 365, 950 350, 1236 779"/>
+  <path class="line" d="M625 380 C745 360, 965 380, 1236 919"/>
+
+  <path class="line" d="M1022 771 L1693 1024"/>
+  <path class="line" d="M1032 1001 C1110 930, 1190 980, 1693 1024"/>
+  <path class="line" d="M1496 779 C1560 780, 1590 900, 1693 1024"/>
+  <path class="line" d="M1496 919 C1570 920, 1600 970, 1693 1024"/>
+  <path class="line" d="M1482 1050 C1570 1050, 1600 1040, 1693 1024"/>
+  <path class="line" d="M1482 1170 L1726 1160"/>
+  <path class="line" d="M1490 1235 L1686 1235"/>
+  <path class="line" d="M1525 635 C1600 635, 1610 900, 1693 1024"/>
+</svg>
